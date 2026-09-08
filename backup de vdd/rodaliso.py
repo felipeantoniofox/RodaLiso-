@@ -1,0 +1,163 @@
+import tkinter as tk
+from tkinter import ttk
+import webbrowser
+
+# --- BANCO DE DADOS (Escala 1 a 10000) ---
+# Valores simulando benchmarks reais (ex: GFLOPS ou PassMark simplificado)
+CPUS = {
+    "Intel Core i7-950": 150,
+    "Intel Core i3-4130": 150,
+    "Intel Core i5-9400F": 450,
+    "AMD Ryzen 5 5600X": 720,
+    "Intel Core i9-14900K": 980
+    #---Fonte site : Technical city 
+}
+
+GPUS = {
+    "Intel HD Graphics 4000": 50,
+    "NVIDIA GTX 750": 60,
+    "NVIDIA GTX 750 Ti": 65,
+    "NVIDIA GTX 760": 85,
+    "NVIDIA GTX 770": 98,
+    "NVIDIA GTX 780": 120,
+    "NVIDIA GTX 780TI": 150,
+    "NVIDIA GTX 950": 88,
+    "NVIDIA GTX 960": 95,
+    "NVIDIA GTX 970": 150,
+    "NVIDIA GTX 980": 160,
+    "NVIDIA GTX 980TI": 210,
+    "NVIDIA GTX 1030": 55,
+    "NVIDIA GTX 1050": 90,
+    "NVIDIA GTX 1050 Ti": 102,
+    "NVIDIA GTX 1060 3GB": 150,
+    "NVIDIA GTX 1060 6GB": 160,
+    "NVIDIA GTX 1070": 215,
+    "NVIDIA GTX 1070Ti": 240,
+    "NVIDIA GTX 1080": 247,
+    "NVIDIA GTX 1080Ti": 330,
+    "NVIDIA RTX 3060": 680,
+    "AMD Radeon RX 7900 XT": 890,
+    "NVIDIA RTX 4090": 1161,
+    "NVIDIA RTX 5090": 1522
+}
+
+RAMS = ["256 MB", "512 MB", "1 GB", "2 GB", "4 GB", "8 GB", "16 GB", "32 GB", "64 GB"]
+
+# Requisitos dos jogos (Agora na escala de 1 a 1000)
+JOGOS = {
+    "CS 2": {"cpu": 200, "gpu": 150, "ram": "4 GB"},
+    "GTA V": {"cpu": 400, "gpu": 350, "ram": "8 GB"},
+    "Red Dead Redemption 2": {"cpu": 600, "gpu": 550, "ram": "12 GB"},
+    "Cyberpunk 2077": {"cpu": 800, "gpu": 850, "ram": "16 GB"},
+    "MW2 2009": {"cpu": 100, "gpu": 45, "ram": "1 GB"},
+    "Black Ops 2": {"cpu": 110, "gpu": 50, "ram": "2 GB"},
+    "MW3 2011": {"cpu": 100, "gpu": 50, "ram": "2 GB"}
+}
+
+# --- FUNÇÃO AUXILIAR DE MEMÓRIA ---
+def converter_ram_para_mb(ram_str):
+    """ Converte strings como '256 MB' ou '8 GB' para Megabytes inteiros """
+    partes = ram_str.strip().split()
+    valor = int(partes[0])
+    unidade = partes[1].upper()
+    if unidade == "GB":
+        return valor * 1024
+    return valor
+
+# --- LÓGICA DE COMPARAÇÃO ---
+def verificar_compatibilidade():
+    cpu_escolhida = combo_cpu.get()
+    gpu_escolhida = combo_gpu.get()
+    ram_escolhida = combo_ram.get()
+    jogo_escolhido = combo_jogos.get()
+
+    if not all([cpu_escolhida, gpu_escolhida, ram_escolhida, jogo_escolhido]):
+        lbl_resultado.config(text="⚠️ Selecione todos os campos!", fg="orange")
+        return
+
+    # Pontuações
+    pontos_cpu = CPUS[cpu_escolhida]
+    pontos_gpu = GPUS[gpu_escolhida]
+    
+    # Conversão tratada em Megabytes para evitar erros de MB vs GB
+    ram_pc_mb = converter_ram_para_mb(ram_escolhida)
+    
+    req_cpu = JOGOS[jogo_escolhido]["cpu"]
+    req_gpu = JOGOS[jogo_escolhido]["gpu"]
+    req_ram_mb = converter_ram_para_mb(JOGOS[jogo_escolhido]["ram"])
+
+    # Verificação com margem de erro (Delta)
+    if pontos_cpu >= req_cpu and pontos_gpu >= req_gpu and ram_pc_mb >= req_ram_mb:
+        lbl_resultado.config(text=f"🟢 RODA LISO!\nScore do Hardware: {pontos_cpu + pontos_gpu}/2000", fg="green")
+    elif ram_pc_mb < req_ram_mb:
+        lbl_resultado.config(text=f"🔴 MEMÓRIA INSUFICIENTE\nRequisito: {JOGOS[jogo_escolhido]['ram']} | Você tem: {ram_escolhida}", fg="red")
+    else:
+        # Cálculo de onde está o gargalo
+        gargalo = "GPU" if pontos_gpu < req_gpu else "CPU"
+        diff = req_gpu - pontos_gpu if gargalo == "GPU" else req_cpu - pontos_cpu
+        lbl_resultado.config(text=f"🟡 GARGALO DETECTADO ({gargalo})\nFaltam {diff} pontos de performance.", fg="#d4a017")
+
+def abrir_video(url):
+    webbrowser.open(url)
+
+# --- UI SETUP ---
+root = tk.Tk()
+root.title("Roda Liso v2.0 - Performance Hub")
+root.geometry("650x500")
+
+style = ttk.Style()
+style.configure("TNotebook.Tab", padding=[20, 5])
+
+nb = ttk.Notebook(root)
+nb.pack(pady=10, expand=True, fill="both")
+
+f1 = ttk.Frame(nb)
+f2 = ttk.Frame(nb)
+nb.add(f1, text="Diagnóstico de Hardware")
+nb.add(f2, text="Tutoriais de Otimização")
+
+# --- CONTEÚDO ABA 1 ---
+tk.Label(f1, text="ENGINE DE COMPARAÇÃO (SCALED 1-1000)", font=("Consolas", 10, "bold"), fg="gray").pack(pady=5)
+
+tk.Label(f1, text="Processador:", font=("Arial", 10)).pack()
+combo_cpu = ttk.Combobox(f1, values=list(CPUS.keys()), width=50, state="readonly")
+combo_cpu.pack(pady=5)
+
+tk.Label(f1, text="Placa de Vídeo:", font=("Arial", 10)).pack()
+combo_gpu = ttk.Combobox(f1, values=list(GPUS.keys()), width=50, state="readonly")
+combo_gpu.pack(pady=5)
+
+tk.Label(f1, text="Memória RAM:", font=("Arial", 10)).pack()
+combo_ram = ttk.Combobox(f1, values=RAMS, width=50, state="readonly")
+combo_ram.pack(pady=5)
+
+ttk.Separator(f1, orient='horizontal').pack(fill='x', pady=15, padx=20)
+
+tk.Label(f1, text="Selecione o Software/Jogo:", font=("Arial", 10, "bold")).pack()
+combo_jogos = ttk.Combobox(f1, values=list(JOGOS.keys()), width=50, state="readonly")
+combo_jogos.pack(pady=5)
+
+btn = tk.Button(f1, text="EXECUTAR MATCHMAKING", bg="#28a745", fg="white", font=("Arial", 10, "bold"), command=verificar_compatibilidade, padx=20)
+btn.pack(pady=20)
+
+lbl_resultado = tk.Label(f1, text="", font=("Arial", 11, "bold"), justify="center")
+lbl_resultado.pack()
+
+# --- CONTEÚDO ABA 2 ---
+tk.Label(f2, text="CENTRAL DE CONHECIMENTO (ODS 4)", font=("Arial", 14, "bold")).pack(pady=20)
+
+btns_links = [
+    ("Limpeza de Sistema e Debloat", "https://www.youtube.com/results?search_query=debloat+windows+10+11"),
+    ("Undervolt e Gestão Térmica", "https://www.youtube.com/results?search_query=tutorial+undervolt+gpu+ptbr"),
+    ("Como diminuir á temperatura dos processadores Ryzen sem gastar dinheiro", "https://www.youtube.com/watch?v=frsiS3g0-Mk"),
+    ("Como fazer Overclock em qualquer Placa de Video", "https://www.youtube.com/watch?v=BUMwelj3SaY"),
+    ("Como converter jogos de DirectX para Vulkan", "https://github.com/doitsujin/DXVK"),
+    ("Como fazer overclock em Intel de 1° á 7° Geração", "https://www.youtube.com/watch?v=nj60vV5Hu2A"),
+    ("Otimização de Drivers Legacy", "https://www.youtube.com/results?search_query=como+instalar+drivers+antigos+corretamente")
+]
+
+for txt, url in btns_links:
+    b = tk.Button(f2, text=f"📺 {txt}", width=45, command=lambda u=url: abrir_video(u), pady=8)
+    b.pack(pady=5)
+
+root.mainloop()

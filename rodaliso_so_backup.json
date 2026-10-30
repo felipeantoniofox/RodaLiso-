@@ -1,0 +1,98 @@
+{
+  "versao": 2,
+  "opcoes": {
+    "onedrive": {
+      "aplicado_em": "28/10/2026 20:25",
+      "antes": [
+        {
+          "tipo": "onedrive",
+          "instalado": true
+        }
+      ]
+    },
+    "bing": {
+      "aplicado_em": "28/10/2026 20:44",
+      "antes": [
+        {
+          "tipo": "reg",
+          "existia": true,
+          "valor": 1,
+          "regtype": 4
+        }
+      ]
+    },
+    "edge": {
+      "aplicado_em": "28/10/2026 20:44",
+      "antes": [
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        },
+        {
+          "tipo": "reg",
+          "existia": false
+        }
+      ]
+    }
+  }
+}

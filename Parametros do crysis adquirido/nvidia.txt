@@ -1,0 +1,762 @@
+0x10de, 0x2204, 4 //GA102 [GeForce RTX 3090], rated : 24500
+0x10de, 0x2206, 4 //GA102 [GeForce RTX 3080 10GB / 20GB], rated : 23800
+0x10de, 0x2482, 4 //GA104 [GeForce RTX 3070 Ti], rated : 23000
+0x10de, 0x2484, 4 //GA104 [GeForce RTX 3070], rated : 23000
+0x10de, 0x2486, 4 //GA104 [GeForce RTX 3060 Ti], rated : 23000
+0x10de, 0x1e04, 4 //TU102 [GeForce RTX 2080 Ti], rated : 21573
+0x10de, 0x1e07, 4 //TU102 [GeForce RTX 2080 Ti Rev. A], rated : 21573
+0x10de, 0x1b02, 3 //GP102 [TITAN Xp], rated : 19076
+0x10de, 0x1b00, 3 //GP102 [TITAN X], rated : 19076
+0x10de, 0x1d81, 3 //GV100 [TITAN V], rated : 19177
+0x10de, 0x1e02, 3 //TU102 [TITAN RTX], rated : 19076
+0x10de, 0x1e30, 3 //TU102GL [Quadro RTX 6000/8000], rated : 19090
+0x10de, 0x1e87, 3 //TU104 [GeForce RTX 2080 Rev. A], rated : 18718
+0x10de, 0x1e84, 3 //TU104 [GeForce RTX 2070 SUPER], rated : 18128
+0x10de, 0x1e82, 3 //TU104 [GeForce RTX 2080], rated : 18718
+0x10de, 0x1e81, 3 //TU104 [GeForce RTX 2080 SUPER], rated : 19251
+0x10de, 0x1e78, 3 //TU102GL [Quadro RTX 6000/8000], rated : 19090
+0x10de, 0x1e93, 3 //TU104M [GeForce RTX 2080 SUPER Mobile / Max-Q], rated : 19251
+0x10de, 0x1e91, 3 //TU104M [GeForce RTX 2070 SUPER Mobile / Max-Q], rated : 18128
+0x10de, 0x1ec2, 3 //TU104 [GeForce RTX 2070 SUPER], rated : 18128
+0x10de, 0x1ed3, 3 //TU104BM [GeForce RTX 2080 SUPER Mobile / Max-Q], rated : 19251
+0x10de, 0x1ed1, 3 //TU104BM [GeForce RTX 2070 SUPER Mobile / Max-Q], rated : 18128
+0x10de, 0x1ec7, 3 //TU104 [GeForce RTX 2070 SUPER], rated : 18128
+0x10de, 0x1005, 2 //GK110 [GeForce GTX TITAN], rated : 12930
+0x10de, 0x1027, 2 //GK110BGL [Tesla K40st], rated : 10598
+0x10de, 0x1024, 2 //GK180GL [Tesla K40c], rated : 10598
+0x10de, 0x1023, 2 //GK110BGL [Tesla K40m], rated : 10598
+0x10de, 0x102e, 2 //GK110BGL [Tesla K40d], rated : 10598
+0x10de, 0x102a, 2 //GK110BGL [Tesla K40t], rated : 10598
+0x10de, 0x1029, 2 //GK110BGL [Tesla K40s], rated : 10598
+0x10de, 0x137b, 2 //GM108GLM [Quadro M520 Mobile], rated : 14832
+0x10de, 0x13c0, 2 //GM204 [GeForce GTX 980], rated : 11049
+0x10de, 0x13e7, 2 //GM204GL [GeForce GTX 980 Engineering Sample], rated : 13676
+0x10de, 0x15f0, 2 //GP100GL [Quadro GP100], rated : 12663
+0x10de, 0x17f1, 2 //GM200GL [Quadro M6000 24GB], rated : 13079
+0x10de, 0x17f0, 2 //GM200GL [Quadro M6000], rated : 12164
+0x10de, 0x17c8, 2 //GM200 [GeForce GTX 980 Ti], rated : 13676
+0x10de, 0x17c2, 2 //GM200 [GeForce GTX TITAN X], rated : 12930
+0x10de, 0x1b01, 2 //GP102 [GeForce GTX 1080 Ti 10GB], rated : 17538
+0x10de, 0x1b38, 2 //GP102GL [Tesla P40], rated : 10598
+0x10de, 0x1b30, 2 //GP102GL [Quadro P6000], rated : 15005
+0x10de, 0x1b06, 2 //GP102 [GeForce GTX 1080 Ti], rated : 17538
+0x10de, 0x1ba2, 2 //GP104M [GeForce GTX 1070 Mobile], rated : 10465
+0x10de, 0x1ba1, 2 //GP104M [GeForce GTX 1070 Mobile], rated : 10465
+0x10de, 0x1b82, 2 //GP104 [GeForce GTX 1070 Ti], rated : 13992
+0x10de, 0x1b81, 2 //GP104 [GeForce GTX 1070], rated : 13336
+0x10de, 0x1b80, 2 //GP104 [GeForce GTX 1080], rated : 14792
+0x10de, 0x1bb3, 2 //GP104GL [Tesla P4], rated : 10598
+0x10de, 0x1bb1, 2 //GP104GL [Quadro P4000], rated : 11841
+0x10de, 0x1bb0, 2 //GP104GL [Quadro P5000], rated : 11894
+0x10de, 0x1bad, 2 //GP104 [GeForce GTX 1070 Engineering Sample], rated : 10465
+0x10de, 0x1be1, 2 //GP104BM [GeForce GTX 1070 Mobile], rated : 10465
+0x10de, 0x1bb9, 2 //GP104GLM [Quadro P4200 Mobile], rated : 12019
+0x10de, 0x1bb8, 2 //GP104GLM [Quadro P3000 Mobile], rated : 14832
+0x10de, 0x1bb7, 2 //GP104GLM [Quadro P4000 Mobile], rated : 14832
+0x10de, 0x1bb6, 2 //GP104GLM [Quadro P5000 Mobile], rated : 14832
+0x10de, 0x1bb5, 2 //GP104GLM [Quadro P5200 Mobile], rated : 14832
+0x10de, 0x1cbb, 2 //GP107GLM [Quadro P1000 Mobile], rated : 14832
+0x10de, 0x1cba, 2 //GP107GLM [Quadro P2000 Mobile], rated : 14832
+0x10de, 0x1cbc, 2 //GP107GLM [Quadro P600 Mobile], rated : 14832
+0x10de, 0x1d33, 2 //GP108GLM [Quadro P500 Mobile], rated : 14832
+0x10de, 0x1dba, 2 //GV100GL [Quadro GV100], rated : 12721
+0x10de, 0x1e89, 2 //TU104 [GeForce RTX 2060], rated : 14269
+0x10de, 0x1eb1, 2 //TU104GL [Quadro RTX 4000], rated : 15247
+0x10de, 0x1eb0, 2 //TU104GL [Quadro RTX 5000], rated : 17455
+0x10de, 0x1e90, 2 //TU104M [GeForce RTX 2080 Mobile], rated : 15107
+0x10de, 0x1eb8, 2 //TU104GL [Tesla T4], rated : 10598
+0x10de, 0x1eb6, 2 //TU104GLM [Quadro RTX 4000 Mobile / Max-Q], rated : 14832
+0x10de, 0x1eb5, 2 //TU104GLM [Quadro RTX 5000 Mobile / Max-Q], rated : 14832
+0x10de, 0x1f07, 2 //TU106 [GeForce RTX 2070 Rev. A], rated : 16264
+0x10de, 0x1f06, 2 //TU106 [GeForce RTX 2060 SUPER], rated : 16312
+0x10de, 0x1f02, 2 //TU106 [GeForce RTX 2070], rated : 16264
+0x10de, 0x1ed0, 2 //TU104BM [GeForce RTX 2080 Mobile], rated : 15107
+0x10de, 0x1f12, 2 //TU106M [GeForce RTX 2060 Max-Q], rated : 14269
+0x10de, 0x1f11, 2 //TU106M [GeForce RTX 2060 Mobile], rated : 11355
+0x10de, 0x1f10, 2 //TU106M [GeForce RTX 2070 Mobile], rated : 12354
+0x10de, 0x1f09, 2 //TU106 [GeForce GTX 1660 SUPER], rated : 12699
+0x10de, 0x1f08, 2 //TU106 [GeForce RTX 2060 Rev. A], rated : 14269
+0x10de, 0x1f55, 2 //TU106BM [GeForce RTX 2060 Mobile], rated : 11355
+0x10de, 0x1f54, 2 //TU106BM [GeForce RTX 2070 Mobile], rated : 12354
+0x10de, 0x1f51, 2 //TU106BM [GeForce RTX 2060 Mobile], rated : 11355
+0x10de, 0x1f50, 2 //TU106BM [GeForce RTX 2070 Mobile / Max-Q], rated : 12354
+0x10de, 0x1f47, 2 //TU106 [GeForce RTX 2060 SUPER], rated : 16312
+0x10de, 0x1f42, 2 //TU106 [GeForce RTX 2060 SUPER], rated : 16312
+0x10de, 0x1f36, 2 //TU106GLM [Quadro RTX 3000 Mobile / Max-Q], rated : 14832
+0x10de, 0x1f15, 2 //TU106M [GeForce RTX 2060 Mobile], rated : 11355
+0x10de, 0x1f14, 2 //TU106M [GeForce RTX 2070 Mobile / Max-Q Refresh], rated : 12359
+0x10de, 0x1fb9, 2 //TU117GLM [Quadro T1000 Mobile], rated : 14832
+0x10de, 0x1fb8, 2 //TU117GLM [Quadro T2000 Mobile / Max-Q], rated : 14832
+0x10de, 0x2184, 2 //TU116 [GeForce GTX 1660], rated : 11511
+0x10de, 0x2182, 2 //TU116 [GeForce GTX 1660 Ti], rated : 12669
+0x10de, 0x21d1, 2 //TU116BM [GeForce GTX 1660 Ti Mobile], rated : 10176
+0x10de, 0x21c4, 2 //TU116 [GeForce GTX 1660 SUPER], rated : 12699
+0x10de, 0x2191, 2 //TU116M [GeForce GTX 1660 Ti Mobile], rated : 10176
+0x10de, 0x0457, 1 //MCP65 USB Controller, rated : 5
+0x10de, 0x0456, 1 //MCP65 USB Controller, rated : 5
+0x10de, 0x053a, 1 //C68 [GeForce 7050 PV / nForce 630a], rated : 32
+0x10de, 0x0533, 1 //C67 [GeForce 7000M / nForce 610M], rated : 13
+0x10de, 0x0531, 1 //C67 [GeForce 7150M / nForce 630M], rated : 18
+0x10de, 0x053e, 1 //C68 [GeForce 7025 / nForce 630a], rated : 37
+0x10de, 0x053b, 1 //C68 [GeForce 7050 PV / nForce 630a], rated : 32
+0x10de, 0x056a, 1 //MCP73 [nForce 630i] USB 2.0 Controller (EHCI), rated : 140
+0x10de, 0x0569, 1 //MCP78S [GeForce 8200] PCI Express Bridge, rated : 79
+0x10de, 0x0568, 1 //MCP78S [GeForce 8200] Memory Controller, rated : 79
+0x10de, 0x05e1, 1 //GT200 [GeForce GTX 280], rated : 1040
+0x10de, 0x05e0, 1 //GT200b [GeForce GTX 295], rated : 1132
+0x10de, 0x05f9, 1 //GT200GL [Quadro CX], rated : 947
+0x10de, 0x05f8, 1 //GT200GL [Quadro Plex 2200 S4], rated : 9081
+0x10de, 0x05f2, 1 //GT200 [GeForce GTX 260], rated : 1230
+0x10de, 0x05f1, 1 //GT200 [GeForce GTX 280], rated : 1040
+0x10de, 0x05ed, 1 //GT200GL [Quadro Plex 2200 D2], rated : 9081
+0x10de, 0x05eb, 1 //GT200 [GeForce GTX 295], rated : 1132
+0x10de, 0x05ea, 1 //GT200 [GeForce GTX 260], rated : 1230
+0x10de, 0x05e7, 1 //GT200GL [Tesla C1060 / M1060], rated : 3428
+0x10de, 0x05e6, 1 //GT200b [GeForce GTX 275], rated : 1433
+0x10de, 0x05e3, 1 //GT200b [GeForce GTX 285], rated : 1550
+0x10de, 0x05e2, 1 //GT200 [GeForce GTX 260], rated : 1230
+0x10de, 0x05ff, 1 //GT200GL [Quadro FX 3800], rated : 777
+0x10de, 0x05fe, 1 //GT200GL [Quadro FX 4800], rated : 947
+0x10de, 0x05fd, 1 //GT200GL [Quadro FX 5800], rated : 1128
+0x10de, 0x0609, 1 //G92M [GeForce 8800M GTS], rated : 474
+0x10de, 0x0608, 1 //G92M [GeForce 9800M GTX], rated : 470
+0x10de, 0x0607, 1 //G92 [GeForce GTS 240], rated : 679
+0x10de, 0x0606, 1 //G92 [GeForce 8800 GS], rated : 394
+0x10de, 0x0605, 1 //G92 [GeForce 9800 GT], rated : 477
+0x10de, 0x0604, 1 //G92 [GeForce 9800 GX2], rated : 798
+0x10de, 0x0603, 1 //G92 [GeForce GT 230 OEM], rated : 225
+0x10de, 0x0602, 1 //G92 [GeForce 8800 GT], rated : 500
+0x10de, 0x0601, 1 //G92 [GeForce 9800 GT], rated : 477
+0x10de, 0x0600, 1 //G92 [GeForce 8800 GTS 512], rated : 606
+0x10de, 0x060f, 1 //G92M [GeForce GTX 285M], rated : 735
+0x10de, 0x060d, 1 //G92 [GeForce 8800 GS], rated : 394
+0x10de, 0x060c, 1 //G92M [GeForce 8800M GTX], rated : 540
+0x10de, 0x060b, 1 //G92M [GeForce 9800M GT], rated : 435
+0x10de, 0x060a, 1 //G92M [GeForce GTX 280M], rated : 621
+0x10de, 0x061a, 1 //G92GL [Quadro FX 3700], rated : 398
+0x10de, 0x0619, 1 //G92GL [Quadro FX 4700 X2], rated : 676
+0x10de, 0x0618, 1 //G92M [GeForce GTX 260M], rated : 497
+0x10de, 0x0617, 1 //G92M [GeForce 9800M GTX], rated : 470
+0x10de, 0x0615, 1 //G92 [GeForce GTS 250], rated : 607
+0x10de, 0x0614, 1 //G92 [GeForce 9800 GT], rated : 477
+0x10de, 0x0613, 1 //G92 [GeForce 9800 GTX+], rated : 746
+0x10de, 0x0612, 1 //G92 [GeForce 9800 GTX / 9800 GTX+], rated : 652
+0x10de, 0x0611, 1 //G92 [GeForce 8800 GT], rated : 500
+0x10de, 0x0610, 1 //G92 [GeForce 9600 GSO], rated : 356
+0x10de, 0x061f, 1 //G92GLM [Quadro FX 3800M], rated : 725
+0x10de, 0x061e, 1 //G92GLM [Quadro FX 3700M], rated : 539
+0x10de, 0x061d, 1 //G92GLM [Quadro FX 2800M], rated : 394
+0x10de, 0x061c, 1 //G92GLM [Quadro FX 3600M], rated : 467
+0x10de, 0x061b, 1 //G92GL [Quadro VX 200], rated : 18
+0x10de, 0x0622, 1 //G94 [GeForce 9600 GT], rated : 485
+0x10de, 0x0621, 1 //G94 [GeForce GT 230], rated : 288
+0x10de, 0x0620, 1 //G94 [GeForce 9800 GT], rated : 477
+0x10de, 0x0625, 1 //G94 [GeForce 9600 GSO 512], rated : 486
+0x10de, 0x0624, 1 //G94 [GeForce 9600 GT Green Edition], rated : 485
+0x10de, 0x0623, 1 //G94 [GeForce 9600 GS], rated : 330
+0x10de, 0x062e, 1 //G94 [GeForce 9600 GT], rated : 485
+0x10de, 0x062d, 1 //G94 [GeForce 9600 GT], rated : 485
+0x10de, 0x062c, 1 //G94M [GeForce 9800M GTS], rated : 366
+0x10de, 0x062b, 1 //G94M [GeForce 9800M GS], rated : 547
+0x10de, 0x062a, 1 //G94M [GeForce 9700M GTS], rated : 369
+0x10de, 0x0628, 1 //G94M [GeForce 9800M GTS], rated : 366
+0x10de, 0x0627, 1 //G94 [GeForce GT 140], rated : 658
+0x10de, 0x0626, 1 //G94 [GeForce GT 130], rated : 376
+0x10de, 0x0631, 1 //G94M [GeForce GTS 160M], rated : 679
+0x10de, 0x0630, 1 //G94 [GeForce 9600 GT], rated : 485
+0x10de, 0x062f, 1 //G94 [GeForce 9800 S], rated : 636
+0x10de, 0x0633, 1 //G94 [GeForce GT 220], rated : 210
+0x10de, 0x0632, 1 //G94M [GeForce GTS 150M], rated : 504
+0x10de, 0x0644, 1 //G96 [GeForce 9500 GS], rated : 277
+0x10de, 0x0643, 1 //G96 [GeForce 9500 GT], rated : 137
+0x10de, 0x0641, 1 //G96C [GeForce 9400 GT], rated : 94
+0x10de, 0x0640, 1 //G96C [GeForce 9500 GT], rated : 137
+0x10de, 0x063f, 1 //G94 [GeForce 9600 GE], rated : 71
+0x10de, 0x063a, 1 //G94GLM [Quadro FX 2700M], rated : 397
+0x10de, 0x0638, 1 //G94GL [Quadro FX 1800], rated : 417
+0x10de, 0x0637, 1 //G94 [GeForce 9600 GT], rated : 485
+0x10de, 0x0635, 1 //G94 [GeForce 9600 GSO], rated : 356
+0x10de, 0x0648, 1 //G96CM [GeForce 9600M GS], rated : 128
+0x10de, 0x0647, 1 //G96CM [GeForce 9600M GT], rated : 132
+0x10de, 0x0646, 1 //G96C [GeForce GT 120], rated : 206
+0x10de, 0x0645, 1 //G96C [GeForce 9500 GS], rated : 277
+0x10de, 0x0656, 1 //G96 [GeForce GT 120 Mac Edition], rated : 266
+0x10de, 0x0655, 1 //G96 [GeForce GT 120 Mac Edition], rated : 266
+0x10de, 0x0654, 1 //G96CM [GeForce GT 220M], rated : 151
+0x10de, 0x0653, 1 //G96CM [GeForce GT 120M], rated : 266
+0x10de, 0x0652, 1 //G96CM [GeForce GT 130M], rated : 199
+0x10de, 0x0651, 1 //G96CM [GeForce G 110M], rated : 65
+0x10de, 0x064e, 1 //G96C [GeForce 9600 GSO / 9800 GT], rated : 652
+0x10de, 0x064c, 1 //G96CM [GeForce 9650M GT], rated : 169
+0x10de, 0x064b, 1 //G96M [GeForce 9500M G], rated : 167
+0x10de, 0x064a, 1 //G96M [GeForce 9700M GT], rated : 217
+0x10de, 0x0649, 1 //G96CM [GeForce 9600M GT], rated : 132
+0x10de, 0x065b, 1 //G96C [GeForce 9400 GT], rated : 94
+0x10de, 0x065a, 1 //G96GLM [Quadro FX 1700M], rated : 181
+0x10de, 0x0659, 1 //G96CGL [Quadro FX 580], rated : 155
+0x10de, 0x0658, 1 //G96GL [Quadro FX 380], rated : 103
+0x10de, 0x06cd, 1 //GF100 [GeForce GTX 470], rated : 3209
+0x10de, 0x06cb, 1 //GF100 [GeForce GTX 480], rated : 3964
+0x10de, 0x06ca, 1 //GF100M [GeForce GTX 480M], rated : 2051
+0x10de, 0x06c4, 1 //GF100 [GeForce GTX 465], rated : 2826
+0x10de, 0x06c0, 1 //GF100 [GeForce GTX 480], rated : 3964
+0x10de, 0x065f, 1 //G96C [GeForce G210], rated : 113
+0x10de, 0x065d, 1 //G96 [GeForce 9500 GA / 9600 GT / GTS 250], rated : 293
+0x10de, 0x065c, 1 //G96GLM [Quadro FX 770M], rated : 297
+0x10de, 0x06d9, 1 //GF100GL [Quadro 5000], rated : 1982
+0x10de, 0x06d8, 1 //GF100GL [Quadro 6000], rated : 2809
+0x10de, 0x06d2, 1 //GF100GL [Tesla M2070], rated : 1306
+0x10de, 0x06d1, 1 //GF100GL [Tesla C2050 / C2070], rated : 3428
+0x10de, 0x06e5, 1 //G98M [GeForce 9300M GS], rated : 68
+0x10de, 0x06e4, 1 //G98 [GeForce 8400 GS Rev. 2], rated : 117
+0x10de, 0x06e3, 1 //G98 [GeForce 8300 GS], rated : 67
+0x10de, 0x06e2, 1 //G98 [GeForce 8400], rated : 101
+0x10de, 0x06e1, 1 //G98 [GeForce 9300 GS], rated : 92
+0x10de, 0x06e0, 1 //G98 [GeForce 9300 GE], rated : 71
+0x10de, 0x06df, 1 //GF100GL [Tesla M2070-Q], rated : 1306
+0x10de, 0x06dd, 1 //GF100GL [Quadro 4000], rated : 1508
+0x10de, 0x06dc, 1 //GF100GL [Quadro 6000], rated : 2809
+0x10de, 0x06da, 1 //GF100GLM [Quadro 5000M], rated : 2060
+0x10de, 0x06e8, 1 //G98M [GeForce 9200M GS], rated : 61
+0x10de, 0x06e7, 1 //G98 [GeForce 9300 SE], rated : 82
+0x10de, 0x06e6, 1 //G98 [GeForce G 100], rated : 99
+0x10de, 0x06fa, 1 //G98 [Quadro NVS 450], rated : 73
+0x10de, 0x06f9, 1 //G98GL [Quadro FX 370 LP], rated : 108
+0x10de, 0x06f8, 1 //G98 [Quadro NVS 420], rated : 99
+0x10de, 0x06f1, 1 //G98M [GeForce G 105M], rated : 74
+0x10de, 0x06ef, 1 //G98M [GeForce G 103M], rated : 65
+0x10de, 0x06ee, 1 //G98 [GeForce 9600 GT / 9800 GT], rated : 652
+0x10de, 0x06ed, 1 //G98 [GeForce 9600 GT / 9800 GT], rated : 652
+0x10de, 0x06ec, 1 //G98M [GeForce G 105M], rated : 74
+0x10de, 0x06eb, 1 //G98M [Quadro NVS 160M], rated : 90
+0x10de, 0x06ea, 1 //G98M [Quadro NVS 150M], rated : 93
+0x10de, 0x06e9, 1 //G98M [GeForce 9300M GS], rated : 68
+0x10de, 0x06fd, 1 //G98 [Quadro NVS 295], rated : 81
+0x10de, 0x06fb, 1 //G98GLM [Quadro FX 370M], rated : 93
+0x10de, 0x075c, 1 //MCP78S [GeForce 8200] LPC Bridge, rated : 79
+0x10de, 0x075b, 1 //MCP78S [GeForce 8200] PCI Express Bridge, rated : 79
+0x10de, 0x075a, 1 //MCP78S [GeForce 8200] PCI Bridge, rated : 79
+0x10de, 0x0759, 1 //MCP78S [GeForce 8200] IDE, rated : 79
+0x10de, 0x0754, 1 //MCP78S [GeForce 8200] Memory Controller, rated : 79
+0x10de, 0x0753, 1 //MCP78S [GeForce 8200] Co-Processor, rated : 79
+0x10de, 0x0752, 1 //MCP78S [GeForce 8200] SMBus, rated : 79
+0x10de, 0x0751, 1 //MCP78S [GeForce 8200] Memory Controller, rated : 79
+0x10de, 0x075d, 1 //MCP78S [GeForce 8200] LPC Bridge, rated : 79
+0x10de, 0x077e, 1 //MCP78S [GeForce 8200] EHCI USB 2.0 Controller, rated : 79
+0x10de, 0x077d, 1 //MCP78S [GeForce 8200] OHCI USB 1.1 Controller, rated : 79
+0x10de, 0x077c, 1 //MCP78S [GeForce 8200] EHCI USB 2.0 Controller, rated : 79
+0x10de, 0x077b, 1 //MCP78S [GeForce 8200] OHCI USB 1.1 Controller, rated : 79
+0x10de, 0x077a, 1 //MCP78S [GeForce 8200] PCI Bridge, rated : 79
+0x10de, 0x0778, 1 //MCP78S [GeForce 8200] PCI Express Bridge, rated : 79
+0x10de, 0x07f4, 1 //GeForce 7100/nForce 630i SATA, rated : 31
+0x10de, 0x07e5, 1 //C73 [GeForce 7100 / nForce 620i], rated : 26
+0x10de, 0x07e3, 1 //C73 [GeForce 7050 / nForce 610i], rated : 28
+0x10de, 0x07e2, 1 //C73 [GeForce 7050 / nForce 630i], rated : 27
+0x10de, 0x07e1, 1 //C73 [GeForce 7100 / nForce 630i], rated : 31
+0x10de, 0x07e0, 1 //C73 [GeForce 7150 / nForce 630i], rated : 33
+0x10de, 0x0844, 1 //C77 [GeForce 9100M G], rated : 66
+0x10de, 0x0840, 1 //C77 [GeForce 8200M], rated : 556
+0x10de, 0x084d, 1 //C77 [nForce 750a SLI], rated : 83
+0x10de, 0x084c, 1 //C77 [nForce 780a/980a SLI], rated : 82
+0x10de, 0x084b, 1 //C77 [GeForce 8200], rated : 79
+0x10de, 0x084a, 1 //C77 [nForce 730a], rated : 764
+0x10de, 0x0849, 1 //C77 [GeForce 8200], rated : 79
+0x10de, 0x0848, 1 //C77 [GeForce 8300], rated : 92
+0x10de, 0x0847, 1 //C78 [GeForce 9100], rated : 82
+0x10de, 0x0846, 1 //C77 [GeForce 9200], rated : 115
+0x10de, 0x0845, 1 //C77 [GeForce 8200M G], rated : 57
+0x10de, 0x0862, 1 //C79 [GeForce 9400M G], rated : 90
+0x10de, 0x0861, 1 //C79 [GeForce 9400], rated : 97
+0x10de, 0x0860, 1 //C79 [GeForce 9300], rated : 127
+0x10de, 0x084f, 1 //C77 [GeForce 8100 / nForce 720a], rated : 79
+0x10de, 0x086e, 1 //C79 [GeForce 9100M G], rated : 66
+0x10de, 0x086d, 1 //C79 [GeForce 9200], rated : 115
+0x10de, 0x086c, 1 //C79 [GeForce 9300 / nForce 730i], rated : 129
+0x10de, 0x086a, 1 //C79 [GeForce 9400], rated : 97
+0x10de, 0x0869, 1 //MCP7A [GeForce 9400], rated : 97
+0x10de, 0x0868, 1 //C79 [nForce 760i SLI], rated : 140
+0x10de, 0x0867, 1 //C79 [GeForce 9400], rated : 97
+0x10de, 0x0866, 1 //C79 [GeForce 9400M G], rated : 90
+0x10de, 0x0865, 1 //C79 [GeForce 9300 / ION], rated : 127
+0x10de, 0x0864, 1 //C79 [GeForce 9300], rated : 127
+0x10de, 0x0863, 1 //C79 [GeForce 9400M], rated : 118
+0x10de, 0x0872, 1 //C79 [GeForce G102M], rated : 93
+0x10de, 0x0871, 1 //C79 [GeForce 9200], rated : 115
+0x10de, 0x0870, 1 //C79 [GeForce 9400M], rated : 118
+0x10de, 0x086f, 1 //MCP79 [GeForce 8200M G], rated : 57
+0x10de, 0x087e, 1 //C79 [ION LE], rated : 98
+0x10de, 0x087d, 1 //C79 [ION], rated : 121
+0x10de, 0x087a, 1 //C79 [GeForce 9400], rated : 97
+0x10de, 0x0876, 1 //C79 [GeForce 9400M / ION], rated : 90
+0x10de, 0x0874, 1 //C79 [ION], rated : 121
+0x10de, 0x0873, 1 //C79 [GeForce G102M], rated : 93
+0x10de, 0x0a21, 1 //GT216M [GeForce GT 330M], rated : 212
+0x10de, 0x0a20, 1 //GT216 [GeForce GT 220], rated : 210
+0x10de, 0x08a5, 1 //MCP89 [GeForce 320M], rated : 272
+0x10de, 0x08a4, 1 //MCP89 [GeForce 320M], rated : 272
+0x10de, 0x08a3, 1 //MCP89 [GeForce 320M], rated : 272
+0x10de, 0x08a2, 1 //MCP89 [GeForce 320M], rated : 272
+0x10de, 0x08a0, 1 //MCP89 [GeForce 320M], rated : 272
+0x10de, 0x087f, 1 //C79 [ION LE], rated : 98
+0x10de, 0x0a2b, 1 //GT216M [GeForce GT 330M], rated : 212
+0x10de, 0x0a2a, 1 //GT216M [GeForce GT 230M], rated : 225
+0x10de, 0x0a29, 1 //GT216M [GeForce GT 330M], rated : 212
+0x10de, 0x0a28, 1 //GT216M [GeForce GT 230M], rated : 225
+0x10de, 0x0a27, 1 //GT216 [GeForce 405], rated : 138
+0x10de, 0x0a26, 1 //GT216 [GeForce 405], rated : 138
+0x10de, 0x0a23, 1 //GT216 [GeForce 210], rated : 98
+0x10de, 0x0a22, 1 //GT216 [GeForce 315], rated : 164
+0x10de, 0x0a35, 1 //GT216M [GeForce GT 325M], rated : 169
+0x10de, 0x0a34, 1 //GT216M [GeForce GT 240M], rated : 211
+0x10de, 0x0a32, 1 //GT216 [GeForce GT 415], rated : 248
+0x10de, 0x0a30, 1 //GT216 [GeForce 505], rated : 187
+0x10de, 0x0a2d, 1 //GT216M [GeForce GT 320M], rated : 115
+0x10de, 0x0a2c, 1 //GT216M [NVS 5100M], rated : 211
+0x10de, 0x0a60, 1 //GT218 [GeForce G210], rated : 113
+0x10de, 0x0a3c, 1 //GT216GLM [Quadro FX 880M], rated : 220
+0x10de, 0x0a38, 1 //GT216GL [Quadro 400], rated : 173
+0x10de, 0x0a64, 1 //GT218 [ION], rated : 121
+0x10de, 0x0a63, 1 //GT218 [GeForce 310], rated : 132
+0x10de, 0x0a62, 1 //GT218 [GeForce 205], rated : 126
+0x10de, 0x0a6e, 1 //GT218M [GeForce 305M], rated : 191
+0x10de, 0x0a6c, 1 //GT218M [NVS 3100M], rated : 117
+0x10de, 0x0a6a, 1 //GT218M [NVS 2100M], rated : 185
+0x10de, 0x0a69, 1 //GT218M [GeForce G 105M], rated : 74
+0x10de, 0x0a68, 1 //GT218M [GeForce G 105M], rated : 74
+0x10de, 0x0a67, 1 //GT218 [GeForce 315], rated : 164
+0x10de, 0x0a66, 1 //GT218 [GeForce 310], rated : 132
+0x10de, 0x0a65, 1 //GT218 [GeForce 210], rated : 98
+0x10de, 0x0a73, 1 //GT218M [GeForce 305M], rated : 191
+0x10de, 0x0a72, 1 //GT218M [GeForce 310M], rated : 112
+0x10de, 0x0a71, 1 //GT218M [GeForce 305M], rated : 191
+0x10de, 0x0a70, 1 //GT218M [GeForce 310M], rated : 112
+0x10de, 0x0a6f, 1 //GT218M [ION], rated : 121
+0x10de, 0x0a7c, 1 //GT218GLM [Quadro FX 380M], rated : 129
+0x10de, 0x0a7b, 1 //GT218 [GeForce 505], rated : 187
+0x10de, 0x0a7a, 1 //GT218M [GeForce 315M], rated : 125
+0x10de, 0x0a78, 1 //GT218GL [Quadro FX 380 LP], rated : 143
+0x10de, 0x0a76, 1 //GT218M [ION 2], rated : 121
+0x10de, 0x0a75, 1 //GT218M [GeForce 310M], rated : 112
+0x10de, 0x0a74, 1 //GT218M [GeForce G210M], rated : 123
+0x10de, 0x0ad8, 1 //MCP78S [GeForce 8200] SATA Controller (RAID mode), rated : 79
+0x10de, 0x0ad4, 1 //MCP78S [GeForce 8200] AHCI Controller, rated : 79
+0x10de, 0x0ad0, 1 //MCP78S [GeForce 8200] SATA Controller (non-AHCI mode), rated : 79
+0x10de, 0x0ca3, 1 //GT215 [GeForce GT 240], rated : 550
+0x10de, 0x0ca2, 1 //GT215 [GeForce GT 320], rated : 444
+0x10de, 0x0ca0, 1 //GT215 [GeForce GT 330], rated : 480
+0x10de, 0x0cac, 1 //GT215 [GeForce GT 220/315], rated : 210
+0x10de, 0x0ca9, 1 //GT215M [GeForce GTS 250M], rated : 542
+0x10de, 0x0ca8, 1 //GT215M [GeForce GTS 260M], rated : 679
+0x10de, 0x0ca7, 1 //GT215 [GeForce GT 330], rated : 480
+0x10de, 0x0ca5, 1 //GT215 [GeForce GT 220], rated : 210
+0x10de, 0x0ca4, 1 //GT215 [GeForce GT 340], rated : 774
+0x10de, 0x0cbc, 1 //GT215GLM [Quadro FX 1800M], rated : 484
+0x10de, 0x0cb1, 1 //GT215M [GeForce GTS 360M], rated : 634
+0x10de, 0x0cb0, 1 //GT215M [GeForce GTS 350M], rated : 442
+0x10de, 0x0caf, 1 //GT215M [GeForce GT 335M], rated : 410
+0x10de, 0x0dd1, 1 //GF106M [GeForce GTX 460M], rated : 1274
+0x10de, 0x0dce, 1 //GF106M [GeForce GT 555M], rated : 676
+0x10de, 0x0dcd, 1 //GF106M [GeForce GT 555M], rated : 676
+0x10de, 0x0dc6, 1 //GF106 [GeForce GTS 450 OEM], rated : 1218
+0x10de, 0x0dc5, 1 //GF106 [GeForce GTS 450 OEM], rated : 1218
+0x10de, 0x0dc4, 1 //GF106 [GeForce GTS 450], rated : 1218
+0x10de, 0x0dc0, 1 //GF106 [GeForce GT 440], rated : 770
+0x10de, 0x0dda, 1 //GF106GLM [Quadro 2000M], rated : 824
+0x10de, 0x0dd8, 1 //GF106GL [Quadro 2000], rated : 938
+0x10de, 0x0dd6, 1 //GF106M [GeForce GT 550M], rated : 591
+0x10de, 0x0dd3, 1 //GF106M [GeForce GT 435M], rated : 552
+0x10de, 0x0dd2, 1 //GF106M [GeForce GT 445M], rated : 1055
+0x10de, 0x0de5, 1 //GF108 [GeForce GT 530], rated : 647
+0x10de, 0x0de4, 1 //GF108 [GeForce GT 520], rated : 288
+0x10de, 0x0de3, 1 //GF108M [GeForce GT 635M], rated : 574
+0x10de, 0x0de2, 1 //GF108 [GeForce GT 420], rated : 413
+0x10de, 0x0de1, 1 //GF108 [GeForce GT 430], rated : 551
+0x10de, 0x0de0, 1 //GF108 [GeForce GT 440], rated : 770
+0x10de, 0x0def, 1 //GF108M [NVS 5400M], rated : 641
+0x10de, 0x0dee, 1 //GF108M [GeForce GT 415M], rated : 318
+0x10de, 0x0ded, 1 //GF108M [GeForce GT 520M], rated : 274
+0x10de, 0x0dec, 1 //GF108M [GeForce GT 525M], rated : 434
+0x10de, 0x0deb, 1 //GF108M [GeForce GT 555M], rated : 676
+0x10de, 0x0dea, 1 //GF108M [GeForce 610M], rated : 279
+0x10de, 0x0de9, 1 //GF108M [GeForce GT 620M/630M/635M/640M LE], rated : 683
+0x10de, 0x0de8, 1 //GF108M [GeForce GT 620M], rated : 427
+0x10de, 0x0de7, 1 //GF108 [GeForce GT 610], rated : 295
+0x10de, 0x0df6, 1 //GF108M [GeForce GT 550M], rated : 591
+0x10de, 0x0df5, 1 //GF108M [GeForce GT 525M], rated : 434
+0x10de, 0x0df4, 1 //GF108M [GeForce GT 540M], rated : 496
+0x10de, 0x0df3, 1 //GF108M [GeForce GT 420M], rated : 429
+0x10de, 0x0df2, 1 //GF108M [GeForce GT 435M], rated : 552
+0x10de, 0x0df1, 1 //GF108M [GeForce GT 420M], rated : 429
+0x10de, 0x0df0, 1 //GF108M [GeForce GT 425M], rated : 517
+0x10de, 0x0dfc, 1 //GF108GLM [NVS 5200M], rated : 552
+0x10de, 0x0dfa, 1 //GF108GLM [Quadro 1000M], rated : 582
+0x10de, 0x0df9, 1 //GF108GLM [Quadro 500M], rated : 664
+0x10de, 0x0df8, 1 //GF108GL [Quadro 600], rated : 550
+0x10de, 0x0df7, 1 //GF108M [GeForce GT 520M], rated : 274
+0x10de, 0x0e3b, 1 //GF104GLM [Quadro 4000M], rated : 1222
+0x10de, 0x0e3a, 1 //GF104GLM [Quadro 3000M], rated : 1094
+0x10de, 0x0e31, 1 //GF104M [GeForce GTX 485M], rated : 2401
+0x10de, 0x0e30, 1 //GF104M [GeForce GTX 470M], rated : 1950
+0x10de, 0x0e24, 1 //GF104 [GeForce GTX 460 OEM], rated : 1962
+0x10de, 0x0e23, 1 //GF104 [GeForce GTX 460 SE], rated : 1962
+0x10de, 0x0e22, 1 //GF104 [GeForce GTX 460], rated : 2293
+0x10de, 0x0f06, 1 //GF108 [GeForce GT 730], rated : 794
+0x10de, 0x0f03, 1 //GF108 [GeForce GT 610], rated : 295
+0x10de, 0x0f02, 1 //GF108 [GeForce GT 730], rated : 794
+0x10de, 0x0f01, 1 //GF108 [GeForce GT 620], rated : 345
+0x10de, 0x0f00, 1 //GF108 [GeForce GT 630], rated : 656
+0x10de, 0x0fc5, 1 //GK107 [GeForce GT 1030], rated : 2607
+0x10de, 0x0fc2, 1 //GK107 [GeForce GT 630 OEM], rated : 535
+0x10de, 0x0fc1, 1 //GK107 [GeForce GT 640], rated : 1146
+0x10de, 0x0fc0, 1 //GK107 [GeForce GT 640 OEM], rated : 906
+0x10de, 0x0fbc, 1 //GM107 High Definition Audio Controller [GeForce 940MX], rated : 1525
+0x10de, 0x0fd4, 1 //GK107M [GeForce GTX 660M], rated : 1520
+0x10de, 0x0fd3, 1 //GK107M [GeForce GT 640M LE], rated : 683
+0x10de, 0x0fd2, 1 //GK107M [GeForce GT 640M], rated : 906
+0x10de, 0x0fd1, 1 //GK107M [GeForce GT 650M], rated : 1156
+0x10de, 0x0fce, 1 //GK107M [GeForce GT 640M LE], rated : 683
+0x10de, 0x0fcd, 1 //GK107M [GeForce GT 755M], rated : 1653
+0x10de, 0x0fc9, 1 //GK107 [GeForce GT 730], rated : 794
+0x10de, 0x0fc8, 1 //GK107 [GeForce GT 740], rated : 1540
+0x10de, 0x0fc6, 1 //GK107 [GeForce GTX 650], rated : 1762
+0x10de, 0x0fdf, 1 //GK107M [GeForce GT 740M], rated : 768
+0x10de, 0x0fd9, 1 //GK107M [GeForce GT 645M], rated : 928
+0x10de, 0x0fd8, 1 //GK107M [GeForce GT 640M Mac Edition], rated : 683
+0x10de, 0x0fd5, 1 //GK107M [GeForce GT 650M Mac Edition], rated : 3569
+0x10de, 0x0fe9, 1 //GK107M [GeForce GT 750M Mac Edition], rated : 3569
+0x10de, 0x0fe7, 1 //GK107GL [GRID K100 vGPU], rated : 811
+0x10de, 0x0fe6, 1 //GK107 [GRID K1 NVS USM], rated : 811
+0x10de, 0x0fe5, 1 //GK107 [GeForce K340 USM], rated : 191
+0x10de, 0x0fe4, 1 //GK107M [GeForce GT 750M], rated : 1353
+0x10de, 0x0fe3, 1 //GK107M [GeForce GT 745M], rated : 975
+0x10de, 0x0fe2, 1 //GK107M [GeForce GT 745M], rated : 975
+0x10de, 0x0fe1, 1 //GK107M [GeForce GT 730M], rated : 856
+0x10de, 0x0fe0, 1 //GK107M [GeForce GTX 660M Mac Edition], rated : 3569
+0x10de, 0x0fef, 1 //GK107GL [GRID K340], rated : 728
+0x10de, 0x0fee, 1 //GK107M [GeForce 810M], rated : 394
+0x10de, 0x0fed, 1 //GK107M [GeForce 820M], rated : 504
+0x10de, 0x0fec, 1 //GK107M [GeForce 710A], rated : 538
+0x10de, 0x0fea, 1 //GK107M [GeForce GT 755M Mac Edition], rated : 1653
+0x10de, 0x0ff2, 1 //GK107GL [GRID K1], rated : 811
+0x10de, 0x0ff1, 1 //GK107 [NVS 1000], rated : 185
+0x10de, 0x0ff6, 1 //GK107GLM [Quadro K1100M], rated : 1088
+0x10de, 0x0ff3, 1 //GK107GL [Quadro K420], rated : 764
+0x10de, 0x0ffe, 1 //GK107GL [Quadro K2000], rated : 1587
+0x10de, 0x0ffd, 1 //GK107 [NVS 510], rated : 763
+0x10de, 0x0ffc, 1 //GK107GLM [Quadro K1000M], rated : 777
+0x10de, 0x0ffb, 1 //GK107GLM [Quadro K2000M], rated : 1038
+0x10de, 0x0ffa, 1 //GK107GL [Quadro K600], rated : 767
+0x10de, 0x0ff9, 1 //GK107GL [Quadro K2000D], rated : 1649
+0x10de, 0x0ff8, 1 //GK107GLM [Quadro K500M], rated : 480
+0x10de, 0x0ff7, 1 //GK107GL [GRID K140Q vGPU], rated : 728
+0x10de, 0x1004, 1 //GK110 [GeForce GTX 780], rated : 7845
+0x10de, 0x1003, 1 //GK110 [GeForce GTX Titan LE], rated : 8661
+0x10de, 0x1001, 1 //GK110B [GeForce GTX TITAN Z], rated : 8238
+0x10de, 0x0fff, 1 //GK107GL [Quadro 410], rated : 441
+0x10de, 0x1020, 1 //GK110GL [Tesla K20X], rated : 3515
+0x10de, 0x101f, 1 //GK110GL [Tesla K20], rated : 3515
+0x10de, 0x101e, 1 //GK110GL [Tesla K20X], rated : 3515
+0x10de, 0x100c, 1 //GK110B [GeForce GTX TITAN Black], rated : 9007
+0x10de, 0x100a, 1 //GK110B [GeForce GTX 780 Ti], rated : 9202
+0x10de, 0x1008, 1 //GK110 [GeForce GTX 780 Ti 6GB], rated : 9202
+0x10de, 0x1007, 1 //GK110 [GeForce GTX 780 Rev. 2], rated : 7845
+0x10de, 0x1026, 1 //GK110GL [Tesla K20s], rated : 3515
+0x10de, 0x1022, 1 //GK110GL [Tesla K20c], rated : 3515
+0x10de, 0x1021, 1 //GK110GL [Tesla K20Xm], rated : 3515
+0x10de, 0x103c, 1 //GK110GL [Quadro K5200], rated : 5855
+0x10de, 0x103a, 1 //GK110GL [Quadro K6000], rated : 8503
+0x10de, 0x102d, 1 //GK210GL [Tesla K80], rated : 3490
+0x10de, 0x1028, 1 //GK110GL [Tesla K20m], rated : 3515
+0x10de, 0x104a, 1 //GF119 [GeForce GT 610], rated : 295
+0x10de, 0x1049, 1 //GF119 [GeForce GT 620 OEM], rated : 427
+0x10de, 0x1048, 1 //GF119 [GeForce 605], rated : 310
+0x10de, 0x1045, 1 //GF119, rated : 554
+0x10de, 0x1042, 1 //GF119 [GeForce 510], rated : 238
+0x10de, 0x1040, 1 //GF119 [GeForce GT 520], rated : 288
+0x10de, 0x1059, 1 //GF119M [GeForce 610M], rated : 279
+0x10de, 0x1058, 1 //GF119M [GeForce 610M], rated : 279
+0x10de, 0x1057, 1 //GF119M [Quadro NVS 4200M], rated : 99
+0x10de, 0x1056, 1 //GF119M [NVS 4200M], rated : 249
+0x10de, 0x1055, 1 //GF119M [GeForce 410M], rated : 244
+0x10de, 0x1054, 1 //GF119M [GeForce 410M], rated : 244
+0x10de, 0x1052, 1 //GF119M [GeForce GT 520M], rated : 274
+0x10de, 0x1051, 1 //GF119M [GeForce GT 520MX], rated : 300
+0x10de, 0x1050, 1 //GF119M [GeForce GT 520M], rated : 274
+0x10de, 0x104d, 1 //GF119 [GeForce GT 710], rated : 636
+0x10de, 0x104c, 1 //GF119 [GeForce GT 705], rated : 369
+0x10de, 0x104b, 1 //GF119 [GeForce GT 625 OEM], rated : 435
+0x10de, 0x1080, 1 //GF110 [GeForce GTX 580], rated : 4517
+0x10de, 0x107d, 1 //GF119 [NVS 310], rated : 230
+0x10de, 0x107c, 1 //GF119 [NVS 315], rated : 295
+0x10de, 0x105b, 1 //GF119M [GeForce 705M], rated : 456
+0x10de, 0x105a, 1 //GF119M [GeForce 610M], rated : 279
+0x10de, 0x1096, 1 //GF110GL [Tesla C2050 / C2075], rated : 3428
+0x10de, 0x1094, 1 //GF110GL [Tesla M2075], rated : 3364
+0x10de, 0x1091, 1 //GF110GL [Tesla M2090], rated : 1306
+0x10de, 0x108e, 1 //GF110GL [Tesla C2090], rated : 3515
+0x10de, 0x108b, 1 //GF110 [GeForce GTX 580], rated : 4517
+0x10de, 0x1089, 1 //GF110 [GeForce GTX 580 Rev. 2], rated : 4517
+0x10de, 0x1088, 1 //GF110 [GeForce GTX 590], rated : 3340
+0x10de, 0x1087, 1 //GF110 [GeForce GTX 560 Ti 448 Cores], rated : 3067
+0x10de, 0x1086, 1 //GF110 [GeForce GTX 570 Rev. 2], rated : 3855
+0x10de, 0x1084, 1 //GF110 [GeForce GTX 560 OEM], rated : 2201
+0x10de, 0x1082, 1 //GF110 [GeForce GTX 560 Ti OEM], rated : 5225
+0x10de, 0x1081, 1 //GF110 [GeForce GTX 570], rated : 3855
+0x10de, 0x10c3, 1 //GT218 [GeForce 8400 GS Rev. 3], rated : 117
+0x10de, 0x10c0, 1 //GT218 [GeForce 9300 GS Rev. 2], rated : 92
+0x10de, 0x109b, 1 //GF100GL [Quadro 7000], rated : 4107
+0x10de, 0x109a, 1 //GF100GLM [Quadro 5010M], rated : 2001
+0x10de, 0x1180, 1 //GK104 [GeForce GTX 680], rated : 5595
+0x10de, 0x10d8, 1 //GT218 [NVS 300], rated : 122
+0x10de, 0x10c5, 1 //GT218 [GeForce 405], rated : 138
+0x10de, 0x1187, 1 //GK104 [GeForce GTX 760], rated : 4745
+0x10de, 0x1185, 1 //GK104 [GeForce GTX 660 OEM], rated : 1520
+0x10de, 0x1184, 1 //GK104 [GeForce GTX 770], rated : 5933
+0x10de, 0x1183, 1 //GK104 [GeForce GTX 660 Ti], rated : 4356
+0x10de, 0x1182, 1 //GK104 [GeForce GTX 760 Ti], rated : 5119
+0x10de, 0x118e, 1 //GK104 [GeForce GTX 760 OEM], rated : 5225
+0x10de, 0x118d, 1 //GK104GL [GRID K200 vGPU], rated : 3177
+0x10de, 0x118c, 1 //GK104 [GRID K2 NVS USM], rated : 3176
+0x10de, 0x118a, 1 //GK104GL [GRID K520], rated : 3177
+0x10de, 0x1189, 1 //GK104 [GeForce GTX 670], rated : 5279
+0x10de, 0x1188, 1 //GK104 [GeForce GTX 690], rated : 5881
+0x10de, 0x1198, 1 //GK104M [GeForce GTX 880M], rated : 3585
+0x10de, 0x1195, 1 //GK104 [GeForce GTX 660 Rev. 2], rated : 2012
+0x10de, 0x1194, 1 //GK104GL [Tesla K8], rated : 7621
+0x10de, 0x1193, 1 //GK104 [GeForce GTX 760 Ti OEM], rated : 5225
+0x10de, 0x1191, 1 //GK104 [GeForce GTX 760 Rev. 2], rated : 2012
+0x10de, 0x118f, 1 //GK104GL [Tesla K10], rated : 3490
+0x10de, 0x119a, 1 //GK104M [GeForce GTX 860M], rated : 3236
+0x10de, 0x1199, 1 //GK104M [GeForce GTX 870M], rated : 3514
+0x10de, 0x11a7, 1 //GK104M [GeForce GTX 675MX], rated : 1513
+0x10de, 0x11a3, 1 //GK104M [GeForce GTX 680MX], rated : 4271
+0x10de, 0x11a2, 1 //GK104M [GeForce GTX 675MX Mac Edition], rated : 1513
+0x10de, 0x11a1, 1 //GK104M [GeForce GTX 670MX], rated : 1844
+0x10de, 0x11a0, 1 //GK104M [GeForce GTX 680M], rated : 2978
+0x10de, 0x119f, 1 //GK104M [GeForce GTX 780M], rated : 3907
+0x10de, 0x119e, 1 //GK104M [GeForce GTX 780M Mac Edition], rated : 3569
+0x10de, 0x119d, 1 //GK104M [GeForce GTX 775M Mac Edition], rated : 4222
+0x10de, 0x11b7, 1 //GK104GLM [Quadro K4100M], rated : 2253
+0x10de, 0x11b6, 1 //GK104GLM [Quadro K3100M], rated : 2274
+0x10de, 0x11b4, 1 //GK104GL [Quadro K4200], rated : 4236
+0x10de, 0x11b0, 1 //GK104GL [GRID K240Q / K260Q vGPU], rated : 912
+0x10de, 0x11a9, 1 //GK104M [GeForce GTX 870M], rated : 3514
+0x10de, 0x11c0, 1 //GK106 [GeForce GTX 660], rated : 3945
+0x10de, 0x11bf, 1 //GK104GL [GRID K2], rated : 3176
+0x10de, 0x11be, 1 //GK104GLM [Quadro K3000M], rated : 1629
+0x10de, 0x11bd, 1 //GK104GLM [Quadro K4000M], rated : 2146
+0x10de, 0x11bc, 1 //GK104GLM [Quadro K5000M], rated : 2824
+0x10de, 0x11bb, 1 //GK104GL [Quadro 4100], rated : 173
+0x10de, 0x11ba, 1 //GK104GL [Quadro K5000], rated : 3926
+0x10de, 0x11b8, 1 //GK104GLM [Quadro K5100M], rated : 2899
+0x10de, 0x11c7, 1 //GK106 [GeForce GTX 750 Ti], rated : 3920
+0x10de, 0x11c6, 1 //GK106 [GeForce GTX 650 Ti], rated : 2546
+0x10de, 0x11c5, 1 //GK106 [GeForce GT 740], rated : 1540
+0x10de, 0x11c4, 1 //GK106 [GeForce GTX 645 OEM], rated : 928
+0x10de, 0x11c3, 1 //GK106 [GeForce GTX 650 Ti OEM], rated : 5225
+0x10de, 0x11c2, 1 //GK106 [GeForce GTX 650 Ti Boost], rated : 2546
+0x10de, 0x11fc, 1 //GK106GLM [Quadro K2100M], rated : 1386
+0x10de, 0x11fa, 1 //GK106GL [Quadro K4000], rated : 2670
+0x10de, 0x11e3, 1 //GK106M [GeForce GTX 760M], rated : 1617
+0x10de, 0x11e2, 1 //GK106M [GeForce GTX 765M], rated : 1909
+0x10de, 0x11e1, 1 //GK106M [GeForce GTX 765M], rated : 1909
+0x10de, 0x11e0, 1 //GK106M [GeForce GTX 770M], rated : 2705
+0x10de, 0x11cb, 1 //GK106 [GeForce GT 740], rated : 1540
+0x10de, 0x11c8, 1 //GK106 [GeForce GTX 650 OEM], rated : 1156
+0x10de, 0x1203, 1 //GF114 [GeForce GTX 460 SE v2], rated : 1962
+0x10de, 0x1202, 1 //GF114 [GeForce GTX 560 Ti OEM], rated : 5225
+0x10de, 0x1201, 1 //GF114 [GeForce GTX 560], rated : 2722
+0x10de, 0x1200, 1 //GF114 [GeForce GTX 560 Ti], rated : 3067
+0x10de, 0x1244, 1 //GF116 [GeForce GTX 550 Ti], rated : 1568
+0x10de, 0x1243, 1 //GF116 [GeForce GT 545], rated : 1195
+0x10de, 0x1241, 1 //GF116 [GeForce GT 545 OEM], rated : 1195
+0x10de, 0x1213, 1 //GF114M [GeForce GTX 670M], rated : 1720
+0x10de, 0x1212, 1 //GF114M [GeForce GTX 675M], rated : 2081
+0x10de, 0x1211, 1 //GF114M [GeForce GTX 580M], rated : 2279
+0x10de, 0x1210, 1 //GF114M [GeForce GTX 570M], rated : 1998
+0x10de, 0x1208, 1 //GF114 [GeForce GTX 560 SE], rated : 2201
+0x10de, 0x1207, 1 //GF114 [GeForce GT 645 OEM], rated : 928
+0x10de, 0x1206, 1 //GF114 [GeForce GTX 555], rated : 1952
+0x10de, 0x1205, 1 //GF114 [GeForce GTX 460 v2], rated : 2012
+0x10de, 0x1247, 1 //GF116M [GeForce GT 555M/635M], rated : 676
+0x10de, 0x1246, 1 //GF116M [GeForce GT 550M], rated : 591
+0x10de, 0x1245, 1 //GF116 [GeForce GTS 450 Rev. 2], rated : 1218
+0x10de, 0x1287, 1 //GK208B [GeForce GT 730], rated : 794
+0x10de, 0x1286, 1 //GK208 [GeForce GT 720], rated : 586
+0x10de, 0x1284, 1 //GK208 [GeForce GT 630 Rev. 2], rated : 2012
+0x10de, 0x1282, 1 //GK208 [GeForce GT 640 Rev. 2], rated : 2012
+0x10de, 0x1281, 1 //GK208 [GeForce GT 710], rated : 636
+0x10de, 0x1280, 1 //GK208 [GeForce GT 635], rated : 815
+0x10de, 0x1251, 1 //GF116M [GeForce GT 560M], rated : 1349
+0x10de, 0x124d, 1 //GF116M [GeForce GT 555M/635M], rated : 676
+0x10de, 0x124b, 1 //GF116 [GeForce GT 640 OEM], rated : 906
+0x10de, 0x1249, 1 //GF116 [GeForce GTS 450 Rev. 3], rated : 1218
+0x10de, 0x1248, 1 //GF116M [GeForce GT 555M/635M], rated : 676
+0x10de, 0x1289, 1 //GK208 [GeForce GT 710], rated : 636
+0x10de, 0x1288, 1 //GK208B [GeForce GT 720], rated : 586
+0x10de, 0x1294, 1 //GK208M [GeForce GT 740M], rated : 768
+0x10de, 0x1293, 1 //GK208M [GeForce GT 730M], rated : 856
+0x10de, 0x1292, 1 //GK208M [GeForce GT 740M], rated : 768
+0x10de, 0x1291, 1 //GK208M [GeForce GT 735M], rated : 662
+0x10de, 0x1290, 1 //GK208M [GeForce GT 730M], rated : 856
+0x10de, 0x128b, 1 //GK208B [GeForce GT 710], rated : 636
+0x10de, 0x12b9, 1 //GK208GLM [Quadro K610M], rated : 715
+0x10de, 0x129a, 1 //GK208BM [GeForce 910M], rated : 609
+0x10de, 0x1299, 1 //GK208BM [GeForce 920M], rated : 719
+0x10de, 0x1298, 1 //GK208M [GeForce GT 720M], rated : 444
+0x10de, 0x1296, 1 //GK208M [GeForce 825M], rated : 769
+0x10de, 0x1295, 1 //GK208M [GeForce 710M], rated : 435
+0x10de, 0x134d, 1 //GM108M [GeForce 940MX], rated : 1525
+0x10de, 0x134b, 1 //GM108M [GeForce 940MX], rated : 1525
+0x10de, 0x1349, 1 //GM108M [GeForce 930M], rated : 1009
+0x10de, 0x1348, 1 //GM108M [GeForce 945M / 945A], rated : 1852
+0x10de, 0x1347, 1 //GM108M [GeForce 940M], rated : 1095
+0x10de, 0x1346, 1 //GM108M [GeForce 930M], rated : 1009
+0x10de, 0x1344, 1 //GM108M [GeForce 845M], rated : 1306
+0x10de, 0x1341, 1 //GM108M [GeForce 840M], rated : 1036
+0x10de, 0x1340, 1 //GM108M [GeForce 830M], rated : 982
+0x10de, 0x12ba, 1 //GK208GLM [Quadro K510M], rated : 651
+0x10de, 0x1380, 1 //GM107 [GeForce GTX 750 Ti], rated : 3920
+0x10de, 0x137d, 1 //GM108M [GeForce 940A], rated : 1031
+0x10de, 0x137a, 1 //GM108GLM [Quadro K620M / Quadro M500M], rated : 1038
+0x10de, 0x134f, 1 //GM108M [GeForce 920MX], rated : 1076
+0x10de, 0x134e, 1 //GM108M [GeForce 930MX], rated : 1347
+0x10de, 0x1382, 1 //GM107 [GeForce GTX 745], rated : 2220
+0x10de, 0x1381, 1 //GM107 [GeForce GTX 750], rated : 3388
+0x10de, 0x1391, 1 //GM107M [GeForce GTX 850M], rated : 2604
+0x10de, 0x1390, 1 //GM107M [GeForce 845M], rated : 1306
+0x10de, 0x1389, 1 //GM107GL [GRID M30], rated : 912
+0x10de, 0x139c, 1 //GM107M [GeForce 940M], rated : 1095
+0x10de, 0x139b, 1 //GM107M [GeForce GTX 960M], rated : 3497
+0x10de, 0x139a, 1 //GM107M [GeForce GTX 950M], rated : 2630
+0x10de, 0x1399, 1 //GM107M [GeForce 945M], rated : 2130
+0x10de, 0x1398, 1 //GM107M [GeForce 845M], rated : 1306
+0x10de, 0x1393, 1 //GM107M [GeForce 840M], rated : 1036
+0x10de, 0x1392, 1 //GM107M [GeForce GTX 860M], rated : 3236
+0x10de, 0x13b6, 1 //GM107GLM [Quadro M1200 Mobile], rated : 3574
+0x10de, 0x13b4, 1 //GM107GLM [Quadro M620 Mobile], rated : 2758
+0x10de, 0x13b3, 1 //GM107GLM [Quadro K2200M], rated : 3855
+0x10de, 0x13b2, 1 //GM107GLM [Quadro M600M], rated : 1932
+0x10de, 0x13b1, 1 //GM107GLM [Quadro M1000M], rated : 2976
+0x10de, 0x13b0, 1 //GM107GLM [Quadro M2000M], rated : 3556
+0x10de, 0x139d, 1 //GM107M [GeForce GTX 750 Ti], rated : 3920
+0x10de, 0x13c2, 1 //GM204 [GeForce GTX 970], rated : 9641
+0x10de, 0x13bd, 1 //GM107GL [Tesla M10], rated : 3490
+0x10de, 0x13bc, 1 //GM107GL [Quadro K1200], rated : 2861
+0x10de, 0x13bb, 1 //GM107GL [Quadro K620], rated : 2275
+0x10de, 0x13ba, 1 //GM107GL [Quadro K2200], rated : 3563
+0x10de, 0x13b9, 1 //GM107GL [NVS 810], rated : 1015
+0x10de, 0x13da, 1 //GM204M [GeForce GTX 980 Mobile], rated : 4462
+0x10de, 0x13d9, 1 //GM204M [GeForce GTX 965M], rated : 3836
+0x10de, 0x13d8, 1 //GM204M [GeForce GTX 970M], rated : 5600
+0x10de, 0x13d7, 1 //GM204M [GeForce GTX 980M], rated : 7439
+0x10de, 0x1402, 1 //GM206 [GeForce GTX 950], rated : 5317
+0x10de, 0x1401, 1 //GM206 [GeForce GTX 960], rated : 5977
+0x10de, 0x13fb, 1 //GM204GLM [Quadro M5500], rated : 7915
+0x10de, 0x13fa, 1 //GM204GLM [Quadro M3000M], rated : 5371
+0x10de, 0x13f9, 1 //GM204GLM [Quadro M4000M], rated : 6479
+0x10de, 0x13f8, 1 //GM204GLM [Quadro M5000M / M5000 SE], rated : 6432
+0x10de, 0x13f3, 1 //GM204GL [Tesla M6], rated : 7621
+0x10de, 0x13f2, 1 //GM204GL [Tesla M60], rated : 7329
+0x10de, 0x13f1, 1 //GM204GL [Quadro M4000], rated : 6515
+0x10de, 0x13f0, 1 //GM204GL [Quadro M5000], rated : 9245
+0x10de, 0x1431, 1 //GM206GL [Tesla M4], rated : 7621
+0x10de, 0x1430, 1 //GM206GL [Quadro M2000], rated : 3999
+0x10de, 0x1427, 1 //GM206M [GeForce GTX 965M], rated : 3836
+0x10de, 0x1407, 1 //GM206 [GeForce GTX 750 v2], rated : 3388
+0x10de, 0x1406, 1 //GM206 [GeForce GTX 960 OEM], rated : 3497
+0x10de, 0x1667, 1 //GM204M [GeForce GTX 965M], rated : 3836
+0x10de, 0x161a, 1 //GM204M [GeForce GTX 980 Mobile], rated : 4462
+0x10de, 0x1619, 1 //GM204M [GeForce GTX 965M], rated : 3836
+0x10de, 0x1618, 1 //GM204M [GeForce GTX 970M], rated : 5600
+0x10de, 0x1617, 1 //GM204M [GeForce GTX 980M], rated : 7439
+0x10de, 0x15f9, 1 //GP100GL [Tesla P100 SXM2 16GB], rated : 7225
+0x10de, 0x15f8, 1 //GP100GL [Tesla P100 PCIe 16GB], rated : 7225
+0x10de, 0x15f7, 1 //GP100GL [Tesla P100 PCIe 12GB], rated : 7225
+0x10de, 0x1436, 1 //GM206GLM [Quadro M2200 Mobile], rated : 4439
+0x10de, 0x172f, 1 //GP100, rated : 4450
+0x10de, 0x172e, 1 //GP100, rated : 4450
+0x10de, 0x1725, 1 //GP100, rated : 4450
+0x10de, 0x17fd, 1 //GM200GL [Tesla M40], rated : 3490
+0x10de, 0x179c, 1 //GM107 [GeForce 940MX], rated : 1525
+0x10de, 0x1789, 1 //GM107GL [GRID M3-3020], rated : 912
+0x10de, 0x174e, 1 //GM108M [GeForce MX110], rated : 1479
+0x10de, 0x174d, 1 //GM108M [GeForce MX130], rated : 1921
+0x10de, 0x1b07, 1 //GP102 [P102-100], rated : 4450
+0x10de, 0x1ba0, 1 //GP104M [GeForce GTX 1080 Mobile], rated : 4462
+0x10de, 0x1b87, 1 //GP104 [P104-100], rated : 4450
+0x10de, 0x1b84, 1 //GP104 [GeForce GTX 1060 3GB], rated : 9620
+0x10de, 0x1b83, 1 //GP104 [GeForce GTX 1060 6GB], rated : 9620
+0x10de, 0x1be0, 1 //GP104BM [GeForce GTX 1080 Mobile], rated : 4462
+0x10de, 0x1bc7, 1 //GP104 [P104-101], rated : 4450
+0x10de, 0x1bbb, 1 //GP104GLM [Quadro P3200 Mobile], rated : 7799
+0x10de, 0x1bb4, 1 //GP104GL [Tesla P6], rated : 7621
+0x10de, 0x1c06, 1 //GP106 [GeForce GTX 1060 6GB Rev. 2], rated : 9620
+0x10de, 0x1c04, 1 //GP106 [GeForce GTX 1060 5GB], rated : 4141
+0x10de, 0x1c03, 1 //GP106 [GeForce GTX 1060 6GB], rated : 9620
+0x10de, 0x1c02, 1 //GP106 [GeForce GTX 1060 3GB], rated : 9620
+0x10de, 0x1c01, 1 //GP106, rated : 2913
+0x10de, 0x1c00, 1 //GP106, rated : 2913
+0x10de, 0x1c31, 1 //GP106GL [Quadro P2200], rated : 9081
+0x10de, 0x1c30, 1 //GP106GL [Quadro P2000], rated : 7259
+0x10de, 0x1c23, 1 //GP106M [GeForce GTX 1060 Mobile Rev. 2], rated : 8161
+0x10de, 0x1c22, 1 //GP106M [GeForce GTX 1050 Mobile], rated : 4462
+0x10de, 0x1c21, 1 //GP106M [GeForce GTX 1050 Ti Mobile], rated : 5919
+0x10de, 0x1c20, 1 //GP106M [GeForce GTX 1060 Mobile], rated : 8161
+0x10de, 0x1c09, 1 //GP106 [P106-090], rated : 2913
+0x10de, 0x1c07, 1 //GP106 [P106-100], rated : 5023
+0x10de, 0x1c62, 1 //GP106BM [GeForce GTX 1050 Mobile], rated : 4462
+0x10de, 0x1c61, 1 //GP106BM [GeForce GTX 1050 Ti Mobile], rated : 5919
+0x10de, 0x1c60, 1 //GP106BM [GeForce GTX 1060 Mobile 6GB], rated : 8161
+0x10de, 0x1c35, 1 //GP106, rated : 2913
+0x10de, 0x1c92, 1 //GP107M [GeForce GTX 1050 Mobile], rated : 4462
+0x10de, 0x1c91, 1 //GP107M [GeForce GTX 1050 3 GB Max-Q], rated : 9620
+0x10de, 0x1c90, 1 //GP107M [GeForce MX150], rated : 2367
+0x10de, 0x1c8f, 1 //GP107M [GeForce GTX 1050 Ti Max-Q], rated : 6398
+0x10de, 0x1c8d, 1 //GP107M [GeForce GTX 1050 Mobile], rated : 4462
+0x10de, 0x1c8c, 1 //GP107M [GeForce GTX 1050 Ti Mobile], rated : 5919
+0x10de, 0x1c83, 1 //GP107 [GeForce GTX 1050 3GB], rated : 9620
+0x10de, 0x1c82, 1 //GP107 [GeForce GTX 1050 Ti], rated : 6398
+0x10de, 0x1c81, 1 //GP107 [GeForce GTX 1050], rated : 5614
+0x10de, 0x1c96, 1 //GP107M [GeForce MX350], rated : 3009
+0x10de, 0x1c94, 1 //GP107M [GeForce MX350], rated : 3009
+0x10de, 0x1cb3, 1 //GP107GL [Quadro P400], rated : 1663
+0x10de, 0x1cb2, 1 //GP107GL [Quadro P600], rated : 3431
+0x10de, 0x1cb1, 1 //GP107GL [Quadro P1000], rated : 4345
+0x10de, 0x1cb6, 1 //GP107GL [Quadro P620], rated : 3639
+0x10de, 0x1d11, 1 //GP108M [GeForce MX230], rated : 1960
+0x10de, 0x1d10, 1 //GP108M [GeForce MX150], rated : 2367
+0x10de, 0x1d01, 1 //GP108 [GeForce GT 1030], rated : 2607
+0x10de, 0x1cfb, 1 //GP107GL [Quadro P1000], rated : 4345
+0x10de, 0x1cfa, 1 //GP107GL [Quadro P2000], rated : 7259
+0x10de, 0x1ccd, 1 //GP107BM [GeForce GTX 1050 Mobile], rated : 4462
+0x10de, 0x1ccc, 1 //GP107BM [GeForce GTX 1050 Ti Mobile], rated : 5919
+0x10de, 0x1cbd, 1 //GP107GLM [Quadro P620], rated : 3639
+0x10de, 0x1d56, 1 //GP108BM [GeForce MX330], rated : 2688
+0x10de, 0x1d52, 1 //GP108BM [GeForce MX250], rated : 2585
+0x10de, 0x1d34, 1 //GP108GLM [Quadro P520], rated : 2186
+0x10de, 0x1d16, 1 //GP108M [GeForce MX330], rated : 2688
+0x10de, 0x1d13, 1 //GP108M [GeForce MX250], rated : 2585
+0x10de, 0x1d12, 1 //GP108M [GeForce MX150], rated : 2367
+0x10de, 0x1db6, 1 //GV100GL [Tesla V100 PCIe 32GB], rated : 7225
+0x10de, 0x1db4, 1 //GV100GL [Tesla V100 PCIe 16GB], rated : 7225
+0x10de, 0x1db3, 1 //GV100GL [Tesla V100 FHHL 16GB], rated : 7225
+0x10de, 0x1db2, 1 //GV100GL [Tesla V100 DGXS 16GB], rated : 7225
+0x10de, 0x1db1, 1 //GV100GL [Tesla V100 SXM2 16GB], rated : 7225
+0x10de, 0x1df6, 1 //GV100GL [Tesla V100S PCIe 32GB], rated : 7225
+0x10de, 0x1df5, 1 //GV100GL [Tesla V100 SXM2 16GB], rated : 7225
+0x10de, 0x1df2, 1 //GV100GL [Tesla PG503-216], rated : 7225
+0x10de, 0x1df0, 1 //GV100GL [Tesla PG500-216], rated : 7225
+0x10de, 0x1f0a, 1 //TU106 [GeForce GTX 1650], rated : 7866
+0x10de, 0x1f92, 1 //TU117M [GeForce GTX 1650 Mobile], rated : 6969
+0x10de, 0x1f91, 1 //TU117M [GeForce GTX 1650 Mobile / Max-Q], rated : 6969
+0x10de, 0x1f82, 1 //TU117 [GeForce GTX 1650], rated : 7866
+0x10de, 0x20bf, 1 //GA100 [GRID A100B], rated : 2223
+0x10de, 0x20be, 1 //GA100 [GRID A100A], rated : 914
+0x10de, 0x20b0, 1 //GA100 [GRID A100X], rated : 914
+0x10de, 0x1f96, 1 //TU117M [GeForce GTX 1650 Mobile / Max-Q], rated : 6969
+0x10de, 0x1f95, 1 //TU117M [GeForce GTX 1650 Ti Mobile], rated : 5919
+0x10de, 0x1f94, 1 //TU117M [GeForce GTX 1650 Mobile], rated : 6969
+0x10de, 0x2187, 1 //TU116 [GeForce GTX 1650 SUPER], rated : 9840
+0x10de, 0x2192, 1 //TU116M [GeForce GTX 1650 Ti Mobile], rated : 5919
+0x10de, 0x2188, 1 //TU116 [GeForce GTX 1650], rated : 7866

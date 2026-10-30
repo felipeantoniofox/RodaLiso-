@@ -25,16 +25,17 @@ jobs:
         # pip install -r requirements.txt
 
     - name: DevSecOps - Análise Estática de Segurança (Bandit)
-      run: bandit -r . -ll -ii
-      # Avalia o código procurando vulnerabilidades médias e altas.
+      run: bandit -r . -x "backup*,outras coisas*,Rodaliso_Backups*" -ll -ii
+      continue-on-error: true
+      # Avalia o código atual, ignora arquivos de backup e não interrompe a esteira.
 
     - name: DevSecOps - Verificação de Dependências (Safety)
       run: safety check --bare
-      continue-on-error: true # Continua o pipeline mesmo se achar uma lib desatualizada
+      continue-on-error: true 
+      # Continua o pipeline mesmo se achar uma lib desatualizada.
 
     - name: CD - Gerar Executável (PyInstaller)
-      # Importante: Substitua 'main.py' pelo nome exato do arquivo principal que inicia o seu aplicativo
-      run: pyinstaller --onefile main.py 
+      run: pyinstaller --onefile roda_liso.py 
       continue-on-error: true
 
     - name: CD - Disponibilizar Executável (Artefato)

@@ -23,6 +23,7 @@ import sys
 import threading
 import time
 import tkinter as tk
+import tkinter.font as tkfont
 from tkinter import messagebox
 
 try:
@@ -635,6 +636,49 @@ def criar_ponto_restauracao():
 # ======================================================================================
 # Interface (painel embutido na aba)
 # ======================================================================================
+# Tamanhos de fonte (pt) já com +25% em relação à versão anterior (10->12, 9->11, 8->10)
+FT = {"titulo": 12, "texto": 11, "pequeno": 10}
+
+
+class CaixaMarcar(tk.Frame):
+    """Caixa de marcação grande e clicável.
+    É feita com widgets comuns (Frame + Label) e cores-base, para o tema claro/noturno funcionar nela."""
+
+    def __init__(self, master, variavel, lado, comando=None):
+        super().__init__(master, width=lado, height=lado, bg="#6c757d", cursor="hand2")
+        self.pack_propagate(False)
+        self.grid_propagate(False)
+        self._var, self._comando = variavel, comando
+        self._marca = tk.Label(self, text="", bg="#1a1a1a", fg="white", cursor="hand2",
+                               font=("Arial", -max(12, int(lado * 0.62)), "bold"))
+        self._marca.place(x=3, y=3, width=lado - 6, height=lado - 6)
+        for w in (self, self._marca):
+            w.bind("<Button-1>", self._alternar)
+        self._trace = variavel.trace_add("write", lambda *a: self._pintar())
+        self.bind("<Destroy>", self._ao_destruir)
+        self._pintar()
+
+    def _alternar(self, _e=None):
+        self._var.set(not self._var.get())
+        if self._comando:
+            self._comando()
+
+    def _pintar(self):
+        try:
+            marcado = bool(self._var.get())
+            self._marca.configure(text="✔" if marcado else "", bg="#007bff" if marcado else "#1a1a1a")
+            self.configure(bg="#007bff" if marcado else "#6c757d")
+        except tk.TclError:
+            pass
+
+    def _ao_destruir(self, e):
+        if e.widget is self:
+            try:
+                self._var.trace_remove("write", self._trace)
+            except Exception:
+                pass
+
+
 class PainelOtimizadorSO(tk.Frame):
     def __init__(self, master):
         super().__init__(master, bg="#000000")
@@ -650,22 +694,35 @@ class PainelOtimizadorSO(tk.Frame):
         self._atualizar_ram()
 
     # ----- layout -----
+    def _lado(self, pt, fator, minimo, maximo, negrito=False):
+        """Lado (px) de uma caixa de marcação proporcional à altura de linha da fonte (acompanha a escala do Windows)."""
+        altura = tkfont.Font(root=self, font=("Arial", pt, "bold" if negrito else "normal")).metrics("linespace")
+        return int(max(minimo, min(maximo, altura * fator)))
+
     def _montar(self):
+        self._lado_caixa = self._lado(FT["titulo"], 3.4, 56, 110, negrito=True)
         topo = tk.Frame(self, bg="#000000")
-        topo.pack(fill="x", pady=(0, 6))
-        self.lbl_ram = tk.Label(topo, text="", font=("Arial", 9, "bold"), fg="#38b6ff", bg="#000000")
+        topo.pack(fill="x", pady=(0, 8))
+        self.lbl_ram = tk.Label(topo, text="", font=("Arial", FT["texto"], "bold"), fg="#38b6ff", bg="#000000")
         self.lbl_ram.pack(side="left")
-        tk.Label(topo, text="  •  Marque o que deseja e clique em APLICAR. Tudo pode ser revertido.",
-                 font=("Arial", 9), fg="#aaaaaa", bg="#000000").pack(side="left")
+        dica = tk.Label(topo, text="  •  Marque o que deseja e clique em APLICAR. Tudo pode ser revertido.",
+                        font=("Arial", FT["texto"]), fg="#aaaaaa", bg="#000000", justify="left", anchor="w")
+        dica.pack(side="left", fill="x", expand=True)
+        topo.bind("<Configure>", lambda e: dica.configure(
+            wraplength=max(220, e.width - self.lbl_ram.winfo_reqwidth() - 16)))
 
         if not rodando_como_admin():
             faixa = tk.Frame(self, bg="#121212", highlightbackground="#ff9800", highlightthickness=1)
             faixa.pack(fill="x", pady=(0, 6))
-            tk.Label(faixa, text="⚠ Para alterar o Registro e os serviços o Roda Liso precisa rodar como Administrador.",
-                     font=("Arial", 9), fg="#ff9800", bg="#121212").pack(side="left", padx=10, pady=6)
-            tk.Button(faixa, text="REABRIR COMO ADMINISTRADOR", bg="#ff9800", fg="white", relief="flat",
-                      font=("Arial", 9, "bold"), padx=10, pady=4, cursor="hand2",
-                      command=self._reabrir_como_admin).pack(side="right", padx=10, pady=6)
+            btn_admin = tk.Button(faixa, text="REABRIR COMO ADMINISTRADOR", bg="#ff9800", fg="white", relief="flat",
+                                  font=("Arial", FT["texto"], "bold"), padx=10, pady=4, cursor="hand2",
+                                  command=self._reabrir_como_admin)
+            btn_admin.pack(side="right", padx=10, pady=6)
+            aviso_admin = tk.Label(faixa, text="⚠ Para alterar o Registro e os serviços o Roda Liso precisa rodar como Administrador.",
+                                   font=("Arial", FT["texto"]), fg="#ff9800", bg="#121212", justify="left", anchor="w")
+            aviso_admin.pack(side="left", padx=10, pady=6, fill="x", expand=True)
+            faixa.bind("<Configure>", lambda e: aviso_admin.configure(
+                wraplength=max(200, e.width - btn_admin.winfo_reqwidth() - 50)))
 
         meio = tk.Frame(self, bg="#000000")
         meio.pack(fill="both", expand=True)
@@ -683,31 +740,82 @@ class PainelOtimizadorSO(tk.Frame):
             w.bind("<Leave>", lambda e: self.canvas.unbind_all("<MouseWheel>"))
 
         rodape = tk.Frame(self, bg="#000000")
-        rodape.pack(fill="x", pady=(8, 0))
-        self.lbl_estimativa = tk.Label(rodape, text="", font=("Arial", 9, "bold"), fg="#28a745", bg="#000000", justify="left")
+        rodape.pack(fill="x", pady=(10, 0))
+        self.lbl_estimativa = tk.Label(rodape, text="", font=("Arial", FT["texto"], "bold"), fg="#28a745",
+                                       bg="#000000", justify="left")
         self.lbl_estimativa.pack(anchor="w")
-        tk.Checkbutton(rodape, text="Criar ponto de restauração do Windows antes de aplicar (recomendado)",
-                       variable=self.var_restore, font=("Arial", 9), fg="#ffffff", bg="#000000", selectcolor="#1a1a1a",
-                       activebackground="#000000", activeforeground="#ffffff").pack(anchor="w", pady=(2, 0))
+        rodape.bind("<Configure>", self._ao_redimensionar_rodape)
+
+        # Linha do ponto de restauração: texto à esquerda, caixa de marcação à direita (mesma coluna das opções)
+        self.linha_restore = tk.Frame(rodape, bg="#000000")
+        self.linha_restore.pack(fill="x", pady=(8, 0))
+        lbl_restore = tk.Label(self.linha_restore, text="Criar ponto de restauração do Windows antes de aplicar (recomendado)",
+                               font=("Arial", FT["texto"]), fg="#ffffff", bg="#000000", cursor="hand2")
+        lbl_restore.pack(side="left")
+        lbl_restore.bind("<Button-1>", lambda e: self.var_restore.set(not self.var_restore.get()))
+        CaixaMarcar(self.linha_restore, self.var_restore, self._lado(FT["texto"], 2.0, 30, 52)).pack(side="right")
+
+        # Botões de uma ponta a outra, com a mesma largura
         botoes = tk.Frame(rodape, bg="#000000")
-        botoes.pack(fill="x", pady=(6, 0))
+        botoes.pack(fill="x", pady=(12, 0))
+        self._botoes_frame, self._botoes = botoes, []
         for texto, cor, cmd in (("APLICAR SELECIONADOS", "#007bff", self.aplicar_selecionados),
                                 ("REVERTER SELECIONADOS", "#dc3545", self.reverter_selecionados),
                                 ("SELECIONAR RECOMENDADOS", "#6c757d", self.selecionar_recomendados),
                                 ("LIMPAR SELEÇÃO", "#6c757d", self.limpar_selecao)):
-            tk.Button(botoes, text=texto, bg=cor, fg="white", font=("Arial", 9, "bold"), relief="flat",
-                      padx=12, pady=7, cursor="hand2", command=cmd).pack(side="left", padx=(0, 8))
-        self.lbl_status = tk.Label(rodape, text="", font=("Arial", 9), fg="#aaaaaa", bg="#000000", justify="left")
-        self.lbl_status.pack(anchor="w", pady=(6, 0))
+            self._botoes.append(tk.Button(botoes, text=texto, bg=cor, fg="white", font=("Arial", FT["texto"], "bold"),
+                                          relief="flat", padx=12, pady=12, cursor="hand2", command=cmd))
+        self._colunas_botoes = None
+        botoes.bind("<Configure>", self._organizar_botoes)
+        self._organizar_botoes()
+        self.lbl_status = tk.Label(rodape, text="", font=("Arial", FT["texto"]), fg="#aaaaaa", bg="#000000", justify="left")
+        self.lbl_status.pack(anchor="w", pady=(8, 0))
+        self.after_idle(self._alinhar_rodape)
+
+    def _organizar_botoes(self, _e=None):
+        """4 botões em uma linha se couberem; senão 2 por linha (janela estreita, ex.: metade da tela)."""
+        try:
+            largura = self._botoes_frame.winfo_width()
+            if largura <= 1:
+                return
+            precisa = sum(b.winfo_reqwidth() for b in self._botoes) + 8 * (len(self._botoes) - 1)
+            colunas = len(self._botoes) if largura >= precisa else 2
+            if colunas == self._colunas_botoes:
+                return
+            self._colunas_botoes = colunas
+            for i in range(len(self._botoes)):
+                self._botoes_frame.grid_columnconfigure(i, weight=0, uniform="")
+            for c in range(colunas):
+                self._botoes_frame.grid_columnconfigure(c, weight=1, uniform="botoes")
+            for i, b in enumerate(self._botoes):
+                lin, col = divmod(i, colunas)
+                b.grid(row=lin, column=col, sticky="ew", padx=(0 if col == 0 else 8, 0), pady=(0 if lin == 0 else 8, 0))
+        except tk.TclError:
+            pass
+
+    def _ao_redimensionar_rodape(self, e):
+        for lbl in (self.lbl_estimativa, self.lbl_status):
+            lbl.configure(wraplength=max(220, e.width - 8))
+
+    def _alinhar_rodape(self):
+        """Alinha a caixa do ponto de restauração com a coluna das caixas das opções (descontando a barra de rolagem)."""
+        try:
+            self.update_idletasks()
+            self.linha_restore.pack_configure(padx=(0, self.barra.winfo_reqwidth() + 8 + 14 + 1))
+        except tk.TclError:
+            pass
 
     def _roda(self, e):
         self.canvas.yview_scroll(int(-e.delta / 120), "units")
+
+    def _largura_texto(self, largura_canvas):
+        return max(300, largura_canvas - 70 - self._lado_caixa - 40)
 
     def _ao_redimensionar(self, e):
         self.canvas.itemconfigure(self._janela, width=e.width)
         for lbl in self._rotulos:
             if lbl.winfo_exists():
-                lbl.configure(wraplength=max(300, e.width - 70))
+                lbl.configure(wraplength=self._largura_texto(e.width))
 
     def _desenhar(self):
         pos = self.canvas.yview()[0]
@@ -715,9 +823,10 @@ class PainelOtimizadorSO(tk.Frame):
             w.destroy()
         self._rotulos = []
         backup = carregar_backup()["opcoes"]
-        largura = max(300, self.canvas.winfo_width() - 70)
+        largura = self._largura_texto(self.canvas.winfo_width())
         for grupo in GRUPOS:
-            tk.Label(self.lista, text=grupo, font=("Arial", 9, "bold"), fg="#38b6ff", bg="#000000").pack(anchor="w", pady=(10, 2))
+            tk.Label(self.lista, text=grupo, font=("Arial", FT["texto"], "bold"), fg="#38b6ff",
+                     bg="#000000").pack(anchor="w", pady=(12, 3))
             for oid, op in OPCOES.items():
                 if op["grupo"] == grupo:
                     self._cartao(oid, op, backup, largura)
@@ -728,13 +837,17 @@ class PainelOtimizadorSO(tk.Frame):
 
     def _cartao(self, oid, op, backup, largura):
         est = estado_opcao(op)
-        c = tk.Frame(self.lista, bg="#121212", highlightbackground="#222222", highlightthickness=1, padx=14, pady=10)
-        c.pack(fill="x", padx=(0, 8), pady=4)
+        c = tk.Frame(self.lista, bg="#121212", highlightbackground="#222222", highlightthickness=1, padx=14, pady=12)
+        c.pack(fill="x", padx=(0, 8), pady=5)
+        c.grid_columnconfigure(0, weight=1)
+
         topo = tk.Frame(c, bg="#121212")
-        topo.pack(fill="x")
-        tk.Checkbutton(topo, text=op["nome"], variable=self.vars[oid], command=self._atualizar_estimativa,
-                       font=("Arial", 10, "bold"), fg="#ffffff", bg="#121212", selectcolor="#1a1a1a",
-                       activebackground="#121212", activeforeground="#ffffff", anchor="w").pack(side="left")
+        topo.grid(row=0, column=0, columnspan=2, sticky="ew")
+        lbl_nome = tk.Label(topo, text=op["nome"], font=("Arial", FT["titulo"], "bold"), fg="#ffffff", bg="#121212",
+                            justify="left", anchor="w")
+        lbl_nome.grid(row=0, column=0, sticky="w")
+        etiquetas = tk.Frame(topo, bg="#121212")
+        topo.grid_columnconfigure(0, weight=1)
         if est == "ativo":
             origem = f"aplicado pelo Roda Liso em {backup[oid]['aplicado_em']}" if oid in backup else "já estava ativo antes do Roda Liso"
             chip, cor = f"● ATIVO ({origem})", "#28a745"
@@ -746,20 +859,36 @@ class PainelOtimizadorSO(tk.Frame):
             chip, cor = "… verificando", "#aaaaaa"
         else:
             chip, cor = "○ desativado", "#aaaaaa"
-        tk.Label(topo, text=chip, font=("Arial", 8, "bold"), fg=cor, bg="#121212").pack(side="right")
+        tk.Label(etiquetas, text=chip, font=("Arial", FT["pequeno"], "bold"), fg=cor, bg="#121212").pack(side="right")
         cor_risco = {"baixo": "#28a745", "médio": "#ff9800", "ALTO": "#dc3545"}[op["risco"]]
-        tk.Label(topo, text=f"RISCO {op['risco'].upper()}", font=("Arial", 8, "bold"), fg=cor_risco,
-                 bg="#121212").pack(side="right", padx=12)
+        tk.Label(etiquetas, text=f"RISCO {op['risco'].upper()}", font=("Arial", FT["pequeno"], "bold"), fg=cor_risco,
+                 bg="#121212").pack(side="right", padx=14)
+
+        def _posicionar(e, nome=lbl_nome, et=etiquetas, t=topo):
+            # cabe tudo na mesma linha? senão, as etiquetas descem para uma linha própria, alinhadas à direita
+            cabe = nome.winfo_reqwidth() + et.winfo_reqwidth() + 20 <= e.width
+            if cabe:
+                et.grid(row=0, column=1, sticky="e")
+            else:
+                et.grid(row=1, column=0, columnspan=2, sticky="e", pady=(4, 0))
+
+        topo.bind("<Configure>", _posicionar)
+
         lo, hi = op["ram"]
         ram = "RAM: sem ganho relevante" if hi == 0 else f"RAM estimada: ~{lo} a {hi} MB"
-        linhas = [(op["desc"], "#ffffff", ("Arial", 9)),
-                  (f"✓ {op['pos']}", "#28a745", ("Arial", 9, "bold")),
-                  (f"⚠ {op['neg']}", "#ff9800", ("Arial", 9)),
-                  (f"📊 {ram}" + (f"   ↻ {op['reinicio']}" if op["reinicio"] else ""), "#aaaaaa", ("Arial", 8, "italic"))]
-        for texto, cor_t, fonte in linhas:
-            lbl = tk.Label(c, text=texto, font=fonte, fg=cor_t, bg="#121212", justify="left", anchor="w", wraplength=largura)
-            lbl.pack(anchor="w", pady=(3, 0))
+        linhas = [(op["desc"], "#ffffff", ("Arial", FT["texto"])),
+                  (f"✓ {op['pos']}", "#28a745", ("Arial", FT["texto"], "bold")),
+                  (f"⚠ {op['neg']}", "#ff9800", ("Arial", FT["texto"])),
+                  (f"📊 {ram}" + (f"   ↻ {op['reinicio']}" if op["reinicio"] else ""), "#aaaaaa",
+                   ("Arial", FT["pequeno"], "italic"))]
+        for i, (texto, cor_t, fonte) in enumerate(linhas):
+            lbl = tk.Label(c, text=texto, font=fonte, fg=cor_t, bg="#121212", justify="left", anchor="w",
+                           wraplength=largura)
+            lbl.grid(row=1 + i, column=0, sticky="w", pady=(4, 0))
             self._rotulos.append(lbl)
+        # caixa de marcação grande, no lado direito, centralizada na altura dos textos
+        CaixaMarcar(c, self.vars[oid], self._lado_caixa, comando=self._atualizar_estimativa).grid(
+            row=1, column=1, rowspan=len(linhas), padx=(20, 0))
 
     # ----- estimativa -----
     def _atualizar_estimativa(self):
@@ -917,6 +1046,7 @@ class PainelOtimizadorSO(tk.Frame):
             if psutil:
                 m = psutil.virtual_memory()
                 self.lbl_ram.config(text=f"RAM em uso agora: {m.used / 1024**3:.1f} / {m.total / 1024**3:.1f} GB ({m.percent:.0f}%)")
+            self._organizar_botoes()  # a fonte do tema pode mudar a largura dos botões depois da criação
             self.after(2000, self._atualizar_ram)
         except tk.TclError:
             pass

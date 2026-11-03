@@ -1,10 +1,10 @@
 {
   "pastas": {
-    "The Witcher 3 2015": "c:\\program files (x86)\\steam\\steamapps\\common\\The Witcher 3\\bin\\x64"
+    "The Witcher 3 2015": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\The Witcher 3\\bin\\x64"
   },
   "ativos": {
     "The Witcher 3 2015": {
-      "pasta": "c:\\program files (x86)\\steam\\steamapps\\common\\The Witcher 3\\bin\\x64",
+      "pasta": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\The Witcher 3\\bin\\x64",
       "preset_original": ".\\RodaLiso_Nitidez.ini",
       "nivel": "Máxima (Agressiva)"
     }

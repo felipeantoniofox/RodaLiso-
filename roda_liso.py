@@ -8,6 +8,25 @@ import shutil
 import threading
 import ctypes
 
+# --- NITIDEZ EM TELAS COM ESCALA (125%, 150%...) ---
+# Sem isso o Windows desenha a janela em 96 DPI e AMPLIA a imagem pronta (fica borrada).
+# Declarando o programa "ciente de DPI", o Windows deixa o Tk desenhar direto na resolução nativa.
+# Precisa rodar ANTES de criar a janela (tk.Tk()).
+try:
+    ctypes.windll.shcore.SetProcessDpiAwareness(1)      # Windows 8.1+
+except Exception:
+    try:
+        ctypes.windll.user32.SetProcessDPIAware()       # Windows Vista/7/8
+    except Exception:
+        pass
+
+ESCALA_UI = 1.0  # fator da escala do Windows (1.25 = 125%); calculado quando a janela é criada
+
+
+def _px(valor):
+    """Converte um tamanho em pixels 'de projeto' (96 DPI) para pixels reais da tela."""
+    return int(round(valor * ESCALA_UI))
+
 # Importação condicional do monitoramento da IA
 try:
     from monitor import iniciar_monitoramento_tempo_real
@@ -502,7 +521,7 @@ def pausar_agente_ia():
     lbl_status_ia.config(text="⏸️ Agente Pausado: nenhuma medição ou sugestão será feita até você clicar em ATIVAR AGENTE.", fg="#ffc107")
 
 def _mostrar_status_ia(texto: str, cor: str):
-    lbl_status_ia.config(text=texto, fg=cor, wraplength=400, justify="left")
+    lbl_status_ia.config(text=texto, fg=cor, wraplength=_px(300), justify="left")
 
 def aplicar_nitidez_ia():
     jogo_selecionado = combo_jogos_ia.get()
@@ -589,8 +608,12 @@ def reverter_agente_ia():
 if __name__ == '__main__':
     root = tk.Tk()
     root.title("Roda Liso - Performance Hub")
-    root.geometry("980x720")
-    root.minsize(900, 640)
+    # Tamanho inicial nunca maior que a tela; tamanho mínimo pequeno o bastante para encaixar em METADE da tela
+    # (Win+←/→). As abas e o Otimizador de SO se reorganizam sozinhos quando a janela fica estreita.
+    ESCALA_UI = max(1.0, root.winfo_fpixels("1i") / 96.0)   # 125% -> 1.25 (o Tk já escala as fontes sozinho)
+    _sw, _sh = root.winfo_screenwidth(), root.winfo_screenheight()
+    root.geometry(f"{min(_px(1100), _sw - 40)}x{min(_px(760), _sh - 100)}")
+    root.minsize(min(_px(640), _sw // 2), min(_px(520), _sh // 2))
     root.configure(bg="#000000")
 
     lbl_zoom_overlay = tk.Label(root, bg="#1a1a1a", cursor="X_cursor")
@@ -640,42 +663,62 @@ if __name__ == '__main__':
     # ==========================================
     # --- ABA 1: DIAGNÓSTICO ---
     # ==========================================
+    # Fontes das abas Diagnóstico e Empurrãozinho: +35% sobre as originais (9 -> 12, 8 -> 11, 10 -> 14)
+    F_TIT = ("Arial", 12, "bold")
+    F_TXT = ("Arial", 12)
+    F_ITA = ("Arial", 12, "italic")
+    F_PEQ = ("Arial", 11, "bold")
+    F_RES = ("Arial", 14, "bold")
+    F_MONO = ("Consolas", 11)
+    F_COMBO = (tema.FONTE, 12)
+
+    def combo_grande(master, **kw):
+        """Combobox com fonte maior (o texto E a lista que abre)."""
+        cb = ttk.Combobox(master, font=F_COMBO, state="readonly", **kw)
+        cb._fonte_lista = F_COMBO
+        return cb
+
     frame_aba1 = tk.Frame(f1, bg="#000000", padx=15, pady=10)
     frame_aba1.pack(fill="both", expand=True)
 
     col_esq1 = tk.Frame(frame_aba1, bg="#000000")
     col_esq1.pack(side="left", fill="both", expand=True)
 
-    tk.Label(col_esq1, text="CONFIGURAÇÃO DO SEU PC", font=("Arial", 9, "bold"), fg="#aaaaaa", bg="#000000").pack(anchor="w", pady=(0, 5))
+    # Bloco com a largura do controle mais largo: as listas e o botão VERIFICAR esticam até a mesma largura
+    bloco1 = tk.Frame(col_esq1, bg="#000000")
+    bloco1.pack(anchor="w")
 
-    tk.Label(col_esq1, text="Processador:", font=("Arial", 9), fg="#ffffff", bg="#000000").pack(anchor="w")
-    combo_cpu = ttk.Combobox(col_esq1, values=list(CPUS.keys()), width=32, state="readonly")
-    combo_cpu.pack(anchor="w", pady=(0, 8))
+    tk.Label(bloco1, text="CONFIGURAÇÃO DO SEU PC", font=F_TIT, fg="#aaaaaa", bg="#000000").pack(anchor="w", pady=(0, 5))
 
-    tk.Label(col_esq1, text="Placa de Vídeo:", font=("Arial", 9), fg="#ffffff", bg="#000000").pack(anchor="w")
-    combo_gpu = ttk.Combobox(col_esq1, values=list(GPUS.keys()), width=32, state="readonly")
-    combo_gpu.pack(anchor="w", pady=(0, 8))
+    tk.Label(bloco1, text="Processador:", font=F_TXT, fg="#ffffff", bg="#000000").pack(anchor="w")
+    combo_cpu = combo_grande(bloco1, values=list(CPUS.keys()), width=32)
+    combo_cpu.pack(fill="x", pady=(0, 8))
 
-    tk.Label(col_esq1, text="Memória RAM:", font=("Arial", 9), fg="#ffffff", bg="#000000").pack(anchor="w")
-    combo_ram = ttk.Combobox(col_esq1, values=RAMS, width=32, state="readonly")
-    combo_ram.pack(anchor="w", pady=(0, 15))
+    tk.Label(bloco1, text="Placa de Vídeo:", font=F_TXT, fg="#ffffff", bg="#000000").pack(anchor="w")
+    combo_gpu = combo_grande(bloco1, values=list(GPUS.keys()), width=32)
+    combo_gpu.pack(fill="x", pady=(0, 8))
 
-    tk.Label(col_esq1, text="JOGO DESEJADO", font=("Arial", 9, "bold"), fg="#aaaaaa", bg="#000000").pack(anchor="w", pady=(0, 5))
-    combo_jogos = ttk.Combobox(col_esq1, values=list(JOGOS.keys()), width=32, state="readonly")
-    combo_jogos.pack(anchor="w", pady=(0, 15))
+    tk.Label(bloco1, text="Memória RAM:", font=F_TXT, fg="#ffffff", bg="#000000").pack(anchor="w")
+    combo_ram = combo_grande(bloco1, values=RAMS, width=32)
+    combo_ram.pack(fill="x", pady=(0, 15))
+
+    tk.Label(bloco1, text="JOGO DESEJADO", font=F_TIT, fg="#aaaaaa", bg="#000000").pack(anchor="w", pady=(0, 5))
+    combo_jogos = combo_grande(bloco1, values=list(JOGOS.keys()), width=32)
+    combo_jogos.pack(fill="x", pady=(0, 15))
     combo_jogos.bind("<<ComboboxSelected>>", atualizar_jogo_selecionado)
 
-    btn_exec = tk.Button(col_esq1, text="VERIFICAR COMPATIBILIDADE", bg="#28a745", fg="white", font=("Arial", 9, "bold"), command=verificar_compatibilidade, relief="flat", padx=15, pady=8, cursor="hand2")
-    btn_exec.pack(anchor="w", pady=5)
+    btn_exec = tk.Button(bloco1, text="VERIFICAR COMPATIBILIDADE", bg="#28a745", fg="white", font=F_TIT, command=verificar_compatibilidade, relief="flat", padx=15, pady=8, cursor="hand2")
+    btn_exec.pack(fill="x", pady=5)
 
-    lbl_resultado = tk.Label(col_esq1, text="", font=("Arial", 10, "bold"), bg="#000000", justify="left")
+    # O resultado fica FORA do bloco: textos longos dele não podem alargar as listas e o botão
+    lbl_resultado = tk.Label(col_esq1, text="", font=F_RES, bg="#000000", justify="left")
     lbl_resultado.pack(anchor="w", pady=10)
 
     col_dir1 = tk.Frame(frame_aba1, bg="#121212", highlightbackground="#222222", highlightthickness=1, padx=15, pady=15)
     col_dir1.pack(side="right", fill="both", expand=True, padx=(15, 0))
 
-    tk.Label(col_dir1, text="VISUALIZAÇÃO DO TÍTULO", font=("Arial", 9, "bold"), fg="#aaaaaa", bg="#121212").pack(pady=(0, 10))
-    lbl_imagem_jogo = tk.Label(col_dir1, text="Selecione um jogo ao lado", font=("Arial", 9, "italic"), bg="#1a1a1a", fg="#aaaaaa", width=25, height=12)
+    tk.Label(col_dir1, text="VISUALIZAÇÃO DO TÍTULO", font=F_TIT, fg="#aaaaaa", bg="#121212").pack(pady=(0, 10))
+    lbl_imagem_jogo = tk.Label(col_dir1, text="Selecione um jogo ao lado", font=F_ITA, bg="#1a1a1a", fg="#aaaaaa", width=18, height=12)
     lbl_imagem_jogo.pack(expand=True, fill="both")
 
     # ==========================================
@@ -699,10 +742,10 @@ if __name__ == '__main__':
 
     tk.Label(col_dir2, text="DETALHES DO TUTORIAL", font=("Arial", 9, "bold"), fg="#aaaaaa", bg="#121212").pack(pady=(0, 10))
 
-    lbl_tut_titulo = tk.Label(col_dir2, text="Selecione um guia ao lado", font=("Arial", 10, "bold"), bg="#121212", fg="#ffffff", wraplength=220, justify="center")
+    lbl_tut_titulo = tk.Label(col_dir2, text="Selecione um guia ao lado", font=("Arial", 10, "bold"), bg="#121212", fg="#ffffff", wraplength=_px(220), justify="center")
     lbl_tut_titulo.pack(pady=(15, 10))
 
-    lbl_tut_desc = tk.Label(col_dir2, text="Escolha uma opção no menu para exibir as instruções e o link correspondente.", font=("Arial", 9, "italic"), fg="#aaaaaa", bg="#121212", wraplength=220, justify="center")
+    lbl_tut_desc = tk.Label(col_dir2, text="Escolha uma opção no menu para exibir as instruções e o link correspondente.", font=("Arial", 9, "italic"), fg="#aaaaaa", bg="#121212", wraplength=_px(220), justify="center")
     lbl_tut_desc.pack(expand=True, pady=10)
 
     btn_abrir_tut = tk.Button(col_dir2, text="📺 ASSISTIR TUTORIAL", bg="#007bff", fg="white", font=("Arial", 9, "bold"), relief="flat", padx=15, pady=8, cursor="hand2", state="disabled")
@@ -738,7 +781,7 @@ if __name__ == '__main__':
 
     tk.Label(col_dir3, text="DETALHES DA OTIMIZAÇÃO", font=("Arial", 9, "bold"), fg="#aaaaaa", bg="#121212").pack(pady=(0, 10))
 
-    lbl_desc_fix = tk.Label(col_dir3, text="Selecione uma correção para ver a descrição e os parâmetros aplicados.", font=("Arial", 9, "italic"), fg="#aaaaaa", bg="#121212", wraplength=220, justify="left")
+    lbl_desc_fix = tk.Label(col_dir3, text="Selecione uma correção para ver a descrição e os parâmetros aplicados.", font=("Arial", 9, "italic"), fg="#aaaaaa", bg="#121212", wraplength=_px(220), justify="left")
     lbl_desc_fix.pack(anchor="w", pady=(0, 10))
 
     tk.Label(col_dir3, text="CONTEÚDO DO ARQUIVO:", font=("Arial", 8, "bold"), fg="#aaaaaa", bg="#121212").pack(anchor="w", pady=(5, 2))
@@ -786,14 +829,14 @@ if __name__ == '__main__':
 
     lbl_warning = tk.Label(
         f4_content, text="Aviso: O overclock pode causar instabilidade. Requer privilégios de Administrador e processadores desbloqueados.", 
-        font=("Arial", 8), fg="#ff6b6b", bg="#000000", justify="left", wraplength=600
+        font=("Arial", 8), fg="#ff6b6b", bg="#000000", justify="left", wraplength=_px(480)
     )
     lbl_warning.pack(pady=10, anchor="w")
 
     btn_apply_amd = tk.Button(f4_content, text="APLICAR PERFIL AMD", bg="#00a88f", fg="white", font=("Arial", 9, "bold"), command=aplicar_tuning_amd, relief="flat", padx=15, pady=6, cursor="hand2")
     btn_apply_amd.pack(anchor="w", pady=5)
 
-    lbl_amd_output = tk.Label(f4_content, text="Output: Clique em APLICAR para gerar os argumentos", font=("Consolas", 8), fg="#aaaaaa", bg="#000000", wraplength=600, justify="left")
+    lbl_amd_output = tk.Label(f4_content, text="Output: Clique em APLICAR para gerar os argumentos", font=("Consolas", 8), fg="#aaaaaa", bg="#000000", wraplength=_px(480), justify="left")
     lbl_amd_output.pack(anchor="w", pady=5)
 
     # ==========================================
@@ -805,48 +848,55 @@ if __name__ == '__main__':
     col_esq5 = tk.Frame(frame_aba5, bg="#000000")
     col_esq5.pack(side="left", fill="both", expand=True)
 
-    tk.Label(col_esq5, text="PRESETS GRAFICOS ULTRA-BAIXOS", font=("Arial", 9, "bold"), fg="#aaaaaa", bg="#000000").pack(anchor="w", pady=(0, 5))
+    # Bloco com a largura do controle mais largo: as duas listas e a fileira de botões ficam do mesmo tamanho
+    bloco5 = tk.Frame(col_esq5, bg="#000000")
+    bloco5.pack(anchor="w")
 
-    tk.Label(col_esq5, text="Selecione o Jogo:", font=("Arial", 9), fg="#ffffff", bg="#000000").pack(anchor="w")
-    combo_jogo_empurrao = ttk.Combobox(col_esq5, values=list(PRESETS_EMPURRAO.keys()), width=32, state="readonly")
-    combo_jogo_empurrao.pack(anchor="w", pady=(0, 8))
+    tk.Label(bloco5, text="PRESETS GRAFICOS ULTRA-BAIXOS", font=F_TIT, fg="#aaaaaa", bg="#000000").pack(anchor="w", pady=(0, 5))
+
+    tk.Label(bloco5, text="Selecione o Jogo:", font=F_TXT, fg="#ffffff", bg="#000000").pack(anchor="w")
+    combo_jogo_empurrao = combo_grande(bloco5, values=list(PRESETS_EMPURRAO.keys()), width=32)
+    combo_jogo_empurrao.pack(fill="x", pady=(0, 8))
     combo_jogo_empurrao.bind("<<ComboboxSelected>>", atualizar_niveis_empurrao)
 
-    tk.Label(col_esq5, text="Selecione o Nível do Patch:", font=("Arial", 9), fg="#ffffff", bg="#000000").pack(anchor="w")
-    combo_nivel_empurrao = ttk.Combobox(col_esq5, width=32, state="readonly")
-    combo_nivel_empurrao.pack(anchor="w", pady=(0, 8))
+    tk.Label(bloco5, text="Selecione o Nível do Patch:", font=F_TXT, fg="#ffffff", bg="#000000").pack(anchor="w")
+    combo_nivel_empurrao = combo_grande(bloco5, width=32)
+    combo_nivel_empurrao.pack(fill="x", pady=(0, 8))
     combo_nivel_empurrao.bind("<<ComboboxSelected>>", atualizar_preview_empurrao)
 
-    lbl_empurrao_alvo = tk.Label(col_esq5, text="Arquivo Alvo: -", font=("Arial", 8, "bold"), fg="#38b6ff", bg="#000000")
+    lbl_empurrao_alvo = tk.Label(bloco5, text="Arquivo Alvo: -", font=F_PEQ, fg="#38b6ff", bg="#000000")
     lbl_empurrao_alvo.pack(anchor="w", pady=(0, 15))
 
-    frame_botoes = tk.Frame(col_esq5, bg="#000000")
-    frame_botoes.pack(anchor="w", pady=5)
+    frame_botoes = tk.Frame(bloco5, bg="#000000")
+    frame_botoes.pack(fill="x", pady=5)
+    frame_botoes.grid_columnconfigure(0, weight=1, uniform="preset")
+    frame_botoes.grid_columnconfigure(1, weight=1, uniform="preset")
 
-    btn_empurrao = tk.Button(frame_botoes, text="APLICAR PRESET", bg="#dc3545", fg="white", font=("Arial", 9, "bold"), command=aplicar_preset_empurrao, relief="flat", padx=15, pady=8, cursor="hand2")
-    btn_empurrao.pack(side="left", padx=(0, 10))
+    btn_empurrao = tk.Button(frame_botoes, text="APLICAR PRESET", bg="#dc3545", fg="white", font=F_TIT, command=aplicar_preset_empurrao, relief="flat", padx=15, pady=8, cursor="hand2")
+    btn_empurrao.grid(row=0, column=0, sticky="ew", padx=(0, 5))
 
-    btn_reverter = tk.Button(frame_botoes, text="🔄 REVERTER", bg="#6c757d", fg="white", font=("Arial", 9, "bold"), command=reverter_preset_empurrao, relief="flat", padx=15, pady=8, cursor="hand2", state="disabled")
-    btn_reverter.pack(side="left")
+    btn_reverter = tk.Button(frame_botoes, text="🔄 REVERTER", bg="#6c757d", fg="white", font=F_TIT, command=reverter_preset_empurrao, relief="flat", padx=15, pady=8, cursor="hand2", state="disabled")
+    btn_reverter.grid(row=0, column=1, sticky="ew", padx=(5, 0))
 
-    lbl_resultado_empurrao = tk.Label(col_esq5, text="", font=("Arial", 9, "bold"), bg="#000000", justify="left")
+    # O resultado fica FORA do bloco: textos longos dele não podem alargar as listas e os botões
+    lbl_resultado_empurrao = tk.Label(col_esq5, text="", font=F_TIT, bg="#000000", justify="left")
     lbl_resultado_empurrao.pack(anchor="w", pady=10)
 
     col_dir5 = tk.Frame(frame_aba5, bg="#121212", highlightbackground="#222222", highlightthickness=1, padx=15, pady=15)
     col_dir5.pack(side="right", fill="both", expand=True, padx=(15, 0))
 
-    tk.Label(col_dir5, text="DETALHES DO JOGO", font=("Arial", 9, "bold"), fg="#aaaaaa", bg="#121212").pack(pady=(0, 10))
+    tk.Label(col_dir5, text="DETALHES DO JOGO", font=F_TIT, fg="#aaaaaa", bg="#121212").pack(pady=(0, 10))
 
-    lbl_desc_empurrao = tk.Label(col_dir5, text="-", font=("Arial", 9, "italic"), fg="#aaaaaa", bg="#121212", wraplength=220, justify="left")
+    lbl_desc_empurrao = tk.Label(col_dir5, text="-", font=F_ITA, fg="#aaaaaa", bg="#121212", wraplength=_px(300), justify="left")
     lbl_desc_empurrao.pack(anchor="w", pady=(0, 10))
 
-    tk.Label(col_dir5, text="PREVIEW GRÁFICO (Clique para Zoom):", font=("Arial", 8, "bold"), fg="#aaaaaa", bg="#121212").pack(anchor="w", pady=(5, 2))
-    lbl_img_preview = tk.Label(col_dir5, text="Aguardando seleção...", bg="#1a1a1a", fg="#888888", width=35, height=8)
+    tk.Label(col_dir5, text="PREVIEW GRÁFICO (Clique para Zoom):", font=F_PEQ, fg="#aaaaaa", bg="#121212").pack(anchor="w", pady=(5, 2))
+    lbl_img_preview = tk.Label(col_dir5, text="Aguardando seleção...", font=F_TXT, bg="#1a1a1a", fg="#888888", width=26, height=8)
     lbl_img_preview.pack(fill="x", pady=(0, 10))
     lbl_img_preview.bind("<Button-1>", abrir_zoom)
 
-    tk.Label(col_dir5, text="PREVIEW DO ARQUIVO:", font=("Arial", 8, "bold"), fg="#aaaaaa", bg="#121212").pack(anchor="w", pady=(5, 2))
-    txt_preview_empurrao = tk.Text(col_dir5, height=6, width=25, font=("Consolas", 8), bg="#1a1a1a", fg="#e0e0e0", insertbackground="white", relief="solid", bd=1)
+    tk.Label(col_dir5, text="PREVIEW DO ARQUIVO:", font=F_PEQ, fg="#aaaaaa", bg="#121212").pack(anchor="w", pady=(5, 2))
+    txt_preview_empurrao = tk.Text(col_dir5, height=6, width=25, font=F_MONO, bg="#1a1a1a", fg="#e0e0e0", insertbackground="white", relief="solid", bd=1)
     txt_preview_empurrao.pack(fill="both", expand=True)
     txt_preview_empurrao.config(state="disabled")
 
@@ -859,54 +909,64 @@ if __name__ == '__main__':
     col_esq6 = tk.Frame(frame_aba6, bg="#000000")
     col_esq6.pack(side="left", fill="both", expand=True)
 
-    tk.Label(col_esq6, text="CONFIGURAÇÃO DO AGENTE INTELIGENTE", font=("Arial", 9, "bold"), fg="#aaaaaa", bg="#000000").pack(anchor="w", pady=(0, 15))
+    # Bloco com a largura do controle mais largo (a fileira ATIVAR/PAUSAR/REVERTER): listas suspensas e botões
+    # de nitidez esticam até a mesma largura, com as bordas esquerda e direita alinhadas.
+    bloco6 = tk.Frame(col_esq6, bg="#000000")
+    bloco6.pack(anchor="w")
 
-    tk.Label(col_esq6, text="Selecione o Jogo (Instalado):", font=("Arial", 9), fg="#ffffff", bg="#000000").pack(anchor="w")
-    combo_jogos_ia = ttk.Combobox(col_esq6, values=list(PRESETS_EMPURRAO.keys()), width=32, state="readonly")
-    combo_jogos_ia.pack(anchor="w", pady=(0, 15))
+    tk.Label(bloco6, text="CONFIGURAÇÃO DO AGENTE INTELIGENTE", font=("Arial", 9, "bold"), fg="#aaaaaa", bg="#000000").pack(anchor="w", pady=(0, 15))
 
-    tk.Label(col_esq6, text="Taxa de FPS Desejada (Meta):", font=("Arial", 9), fg="#ffffff", bg="#000000").pack(anchor="w")
-    combo_fps_ia = ttk.Combobox(col_esq6, values=["24", "30", "40", "60", "90", "120"], width=32, state="readonly")
+    tk.Label(bloco6, text="Selecione o Jogo (Instalado):", font=("Arial", 9), fg="#ffffff", bg="#000000").pack(anchor="w")
+    combo_jogos_ia = ttk.Combobox(bloco6, values=list(PRESETS_EMPURRAO.keys()), width=32, state="readonly")
+    combo_jogos_ia.pack(fill="x", pady=(0, 15))
+
+    tk.Label(bloco6, text="Taxa de FPS Desejada (Meta):", font=("Arial", 9), fg="#ffffff", bg="#000000").pack(anchor="w")
+    combo_fps_ia = ttk.Combobox(bloco6, values=["24", "30", "40", "60", "90", "120"], width=32, state="readonly")
     combo_fps_ia.set("30")
-    combo_fps_ia.pack(anchor="w", pady=(0, 15))
+    combo_fps_ia.pack(fill="x", pady=(0, 15))
 
     var_fsr = tk.BooleanVar(value=True)
     chk_fsr = tk.Checkbutton(
-        col_esq6, 
-        text="Aplicar filtro de nitidez (estilo FSR) junto com as otimizações", 
+        bloco6, 
+        text="Aplicar filtro de nitidez (Tipo FSR) na próxima vez que o título for reiniciado", 
         variable=var_fsr, 
         font=("Arial", 9, "bold"), 
         bg="#000000", 
         fg="#38b6ff", 
         selectcolor="#1a1a1a", 
         activebackground="#000000", 
-        activeforeground="#ffffff"
+        activeforeground="#ffffff",
+        wraplength=_px(300), justify="left", anchor="w"
     )
-    chk_fsr.pack(anchor="w", pady=(0, 5))
+    chk_fsr.pack(fill="x", pady=(0, 5))
+    bloco6.bind("<Configure>", lambda e: chk_fsr.configure(wraplength=max(200, e.width - 30)))
 
-    tk.Label(col_esq6, text="Nível do filtro de nitidez (estilo FSR):", font=("Arial", 9), fg="#ffffff", bg="#000000").pack(anchor="w")
-    combo_nitidez_fsr = ttk.Combobox(col_esq6, values=["Baixa (Suave)", "Média (Padrão)", "Alta (Nítida)", "Máxima (Agressiva)"], width=32, state="readonly")
+    tk.Label(bloco6, text="Nível do filtro de nitidez (estilo FSR):", font=("Arial", 9), fg="#ffffff", bg="#000000").pack(anchor="w")
+    combo_nitidez_fsr = ttk.Combobox(bloco6, values=["Baixa (Suave)", "Média (Padrão)", "Alta (Nítida)", "Máxima (Agressiva)"], width=32, state="readonly")
     combo_nitidez_fsr.set("Média (Padrão)")
-    combo_nitidez_fsr.pack(anchor="w", pady=(0, 6))
+    combo_nitidez_fsr.pack(fill="x", pady=(0, 6))
 
-    frame_botoes_nitidez = tk.Frame(col_esq6, bg="#000000")
-    frame_botoes_nitidez.pack(anchor="w", pady=(0, 20))
-    tk.Button(frame_botoes_nitidez, text="APLICAR NITIDEZ", bg="#38b6ff", fg="white", font=("Arial", 9, "bold"), command=aplicar_nitidez_ia, relief="flat", padx=12, pady=5, cursor="hand2").pack(side="left", padx=(0, 10))
-    tk.Button(frame_botoes_nitidez, text="REMOVER NITIDEZ", bg="#6c757d", fg="white", font=("Arial", 9, "bold"), command=remover_nitidez_ia, relief="flat", padx=12, pady=5, cursor="hand2").pack(side="left")
+    frame_botoes_nitidez = tk.Frame(bloco6, bg="#000000")
+    frame_botoes_nitidez.pack(fill="x", pady=(0, 20))
+    frame_botoes_nitidez.grid_columnconfigure(0, weight=1, uniform="nitidez")
+    frame_botoes_nitidez.grid_columnconfigure(1, weight=1, uniform="nitidez")
+    tk.Button(frame_botoes_nitidez, text="APLICAR NITIDEZ", bg="#38b6ff", fg="white", font=("Arial", 9, "bold"), command=aplicar_nitidez_ia, relief="flat", padx=12, pady=5, cursor="hand2").grid(row=0, column=0, sticky="ew", padx=(0, 5))
+    tk.Button(frame_botoes_nitidez, text="REMOVER NITIDEZ", bg="#6c757d", fg="white", font=("Arial", 9, "bold"), command=remover_nitidez_ia, relief="flat", padx=12, pady=5, cursor="hand2").grid(row=0, column=1, sticky="ew", padx=(5, 0))
 
+    # O status fica FORA do bloco: textos longos dele não podem alargar as colunas acima
     lbl_status_ia = tk.Label(col_esq6, text="Status: Aguardando inicialização...", font=("Arial", 9, "bold"), fg="#aaaaaa", bg="#000000", justify="left")
 
-    frame_botoes_ia = tk.Frame(col_esq6, bg="#000000")
-    frame_botoes_ia.pack(anchor="w", pady=5)
+    frame_botoes_ia = tk.Frame(bloco6, bg="#000000")
+    frame_botoes_ia.pack(fill="x", pady=5)
 
     btn_ativar_ia = tk.Button(frame_botoes_ia, text="ATIVAR AGENTE", bg="#28a745", fg="white", font=("Arial", 9, "bold"), command=ativar_agente_ia, relief="flat", padx=15, pady=8, cursor="hand2")
-    btn_ativar_ia.pack(side="left", padx=(0, 10))
+    btn_ativar_ia.pack(side="left", fill="x", expand=True, padx=(0, 10))
 
     btn_pausar_ia = tk.Button(frame_botoes_ia, text="PAUSAR", bg="#ff9800", fg="white", font=("Arial", 9, "bold"), command=pausar_agente_ia, relief="flat", padx=15, pady=8, cursor="hand2")
-    btn_pausar_ia.pack(side="left", padx=(0, 10))
+    btn_pausar_ia.pack(side="left", fill="x", expand=True, padx=(0, 10))
 
     btn_reverter_ia = tk.Button(frame_botoes_ia, text="REVERTER", bg="#dc3545", fg="white", font=("Arial", 9, "bold"), command=reverter_agente_ia, relief="flat", padx=15, pady=8, cursor="hand2")
-    btn_reverter_ia.pack(side="left")
+    btn_reverter_ia.pack(side="left", fill="x", expand=True)
 
     lbl_status_ia.pack(anchor="w", pady=15)
 
@@ -915,15 +975,15 @@ if __name__ == '__main__':
 
     tk.Label(col_dir6, text="PAINEL DE INFORMAÇÕES", font=("Arial", 9, "bold"), fg="#aaaaaa", bg="#121212").pack(pady=(0, 10))
 
-    lbl_info_ia = tk.Label(
-        col_dir6, 
-        text="O Agente Roda Liso atua em conformidade estrita com a segurança dos arquivos.\n\n"
-             "1. O botão PAUSAR suspende as medições e as sugestões. Clique em ATIVAR AGENTE para retomar.\n\n"
-             "2. A IA não aplica rebaixamentos agressivos desnecessários. O motor LangGraph cruza sua meta de FPS com as configurações atuais.\n\n"
-             "3. O filtro de nitidez usa o ReShade (efeito CAS, da família do FSR). Ele precisa estar instalado na pasta do jogo; veja a mensagem ao clicar em APLICAR NITIDEZ.",
-        font=("Arial", 9, "italic"), fg="#aaaaaa", bg="#121212", wraplength=220, justify="left"
+    lbl_info_ia = tema.TextoJustificado(
+        col_dir6,
+        texto="O Agente Roda Liso atua em conformidade estrita com a segurança dos arquivos.\n\n"
+              "1. O botão PAUSAR suspende as medições e as sugestões. Clique em ATIVAR AGENTE para retomar.\n\n"
+              "2. A IA não aplica rebaixamentos agressivos desnecessários. O motor LangGraph cruza sua meta de FPS com as configurações atuais.\n\n"
+              "3. O filtro de nitidez usa o ReShade (efeito CAS, da família do FSR). Ele precisa estar instalado na pasta do jogo; veja a mensagem ao clicar em APLICAR NITIDEZ.",
+        fonte=("Segoe UI", 9, "italic"), fg="#aaaaaa", bg="#121212"
     )
-    lbl_info_ia.pack(anchor="w", pady=10)
+    lbl_info_ia.pack(fill="x", pady=10)
 
     # ==========================================
     # --- ABA 7: OTIMIZADOR DE SO (painel embutido, reversível) ---
@@ -970,5 +1030,10 @@ if __name__ == '__main__':
         atualizar_niveis_empurrao()
         combo_jogos_ia.current(0)
 
-    tema.instalar(root, antes_de=nb)  # aplica o tema salvo (noturno por padrão) em todas as abas
+    # tema salvo (noturno por padrão) + barra de abas em largura total, com um ícone depois do nome de cada aba
+    ICONES_ABAS = {
+        "Diagnóstico": "🩺", "Tutoriais": "📖", "Correção de Problemas": "🔧", "Performance AMD": "⚡",
+        "Empurrãozinho": "🚀", "Agente de IA": "🤖", "Otimizador de SO": "⚙️",
+    }
+    tema.instalar(root, antes_de=nb, icones_abas=ICONES_ABAS)
     root.mainloop()

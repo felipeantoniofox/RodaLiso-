@@ -93,6 +93,15 @@
           "existia": false
         }
       ]
+    },
+    "delivery": {
+      "aplicado_em": "02/11/2026 02:53",
+      "antes": [
+        {
+          "tipo": "reg",
+          "existia": false
+        }
+      ]
     }
   }
 }

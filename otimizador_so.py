@@ -66,7 +66,7 @@ def ler_reg(hive, sub, nome):
         with winreg.OpenKey(_hive(hive), sub, 0, _acesso(winreg.KEY_READ)) as k:
             valor, regtype = winreg.QueryValueEx(k, nome)
             return {"existia": True, "valor": valor, "regtype": regtype}
-    except FileNotFoundError:
+    except OSError:
         return {"existia": False}
 
 
@@ -275,7 +275,7 @@ _EDGE_VALORES = [
 # ram = (mín, máx) em MB: ESTIMATIVA baseada em valores típicos, não medida. Varia de PC para PC.
 OPCOES = {
     "consumer": {
-        "nome": "ConsumerFeatures — desativar", "grupo": "ESSENCIAIS", "risco": "baixo", "ram": (0, 30),
+        "nome": "ConsumerFeatures - desativar", "grupo": "ESSENCIAIS", "risco": "baixo", "ram": (0, 30),
         "desc": "Impede o Windows de instalar sozinho apps promovidos e de mostrar sugestões de apps da Microsoft Store.",
         "pos": "Evita apps e jogos promocionais instalados sem você pedir e reduz tarefas de conteúdo em segundo plano. Ganho de RAM pequeno: ~0 a 30 MB.",
         "neg": "Você deixa de receber apps 'sugeridos' pelo Windows. Em Windows Home/Pro o efeito dessa política pode ser limitado.",
@@ -283,7 +283,7 @@ OPCOES = {
         "acoes": [REG("HKLM", _CDM_POL + r"\CloudContent", "DisableWindowsConsumerFeatures", 1)],
     },
     "delivery": {
-        "nome": "Delivery Optimization — desativar", "grupo": "ESSENCIAIS", "risco": "baixo", "ram": (20, 50),
+        "nome": "Delivery Optimization - desativar", "grupo": "ESSENCIAIS", "risco": "baixo", "ram": (20, 50),
         "desc": "Impede o Windows de usar a sua internet para enviar atualizações a outros computadores (P2P).",
         "pos": "Libera cerca de 20 a 50 MB de RAM e poupa upload, rede e CPU em segundo plano enquanto você joga.",
         "neg": "As atualizações passam a vir só dos servidores da Microsoft; sem prejuízo prático na maioria das casas.",
@@ -291,7 +291,7 @@ OPCOES = {
         "acoes": [REG("HKLM", r"SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config", "DODownloadMode", 0, padrao=1)],
     },
     "location": {
-        "nome": "Rastreamento de localização — desativar", "grupo": "ESSENCIAIS", "risco": "baixo", "ram": (10, 30),
+        "nome": "Rastreamento de localização - desativar", "grupo": "ESSENCIAIS", "risco": "baixo", "ram": (10, 30),
         "desc": "Desliga o serviço de localização do Windows e nega o acesso de localização aos apps.",
         "pos": "Libera cerca de 10 a 30 MB de RAM e melhora a privacidade (o PC deixa de registrar onde você está).",
         "neg": "Apps que usam localização (Mapas, Clima, 'Encontrar meu dispositivo', fuso horário automático) podem parar de funcionar direito.",
@@ -304,7 +304,7 @@ OPCOES = {
         ],
     },
     "storesearch": {
-        "nome": "Sugestões da Microsoft Store na pesquisa — desativar", "grupo": "ESSENCIAIS", "risco": "baixo", "ram": (0, 0),
+        "nome": "Sugestões da Microsoft Store na pesquisa - desativar", "grupo": "ESSENCIAIS", "risco": "baixo", "ram": (0, 0),
         "desc": "Bloqueia o arquivo de recomendações da Microsoft Store para a pesquisa não mostrar apps sugeridos.",
         "pos": "Pesquisa do Menu Iniciar mais limpa, sem apps patrocinados. Não libera RAM: o ganho é de limpeza e privacidade.",
         "neg": "Se a Microsoft Store apresentar erro ao abrir, reverta este item. Só funciona depois que a Store já foi aberta uma vez.",
@@ -312,7 +312,7 @@ OPCOES = {
         "acoes": [LOJA_DB],
     },
     "services": {
-        "nome": "Serviços — colocar em manual ou desativar", "grupo": "ESSENCIAIS", "risco": "médio", "ram": (20, 80),
+        "nome": "Serviços - colocar em manual ou desativar", "grupo": "ESSENCIAIS", "risco": "médio", "ram": (20, 80),
         "desc": "Arquivos Offline (CscService) e Compartilhamento de Conexão (SharedAccess) desativados; Mapas (MapsBroker) e Armazenamento (StorSvc) em manual. (O serviço de telemetria fica no item Telemetria.)",
         "pos": "Menos serviços iniciando com o Windows: boot mais leve e cerca de 20 a 80 MB de RAM livres.",
         "neg": "Desativar o Compartilhamento de Conexão (SharedAccess) impede o Hotspot Móvel do Windows de funcionar. Mapas offline deixam de atualizar sozinhos.",
@@ -321,7 +321,7 @@ OPCOES = {
                   SVC("MapsBroker", 3, padrao=2, atrasado=True), SVC("StorSvc", 3, padrao=2)],
     },
     "telemetry": {
-        "nome": "Telemetria — desativar", "grupo": "ESSENCIAIS", "risco": "médio", "ram": (30, 100),
+        "nome": "Telemetria - desativar", "grupo": "ESSENCIAIS", "risco": "médio", "ram": (30, 100),
         "desc": "Desativa os serviços de telemetria (DiagTrack) e de Relatório de Erros (WerSvc) e vários rastreadores de uso e publicidade personalizada.",
         "pos": "Libera cerca de 30 a 100 MB de RAM e reduz CPU, disco e rede usados em segundo plano.",
         "neg": "Sem o Relatório de Erros, o Windows não envia diagnósticos de travamentos à Microsoft. O nível 0 de telemetria só é plenamente respeitado em Enterprise/Education; o serviço desativado é o que de fato interrompe a coleta.",
@@ -329,7 +329,7 @@ OPCOES = {
         "acoes": [REG(h, s, n, v) for h, s, n, v in _TELE] + [SVC("DiagTrack", 4, padrao=2), SVC("WerSvc", 4)],
     },
     "widgets": {
-        "nome": "Widgets — remover", "grupo": "ESSENCIAIS", "risco": "médio", "ram": (100, 250),
+        "nome": "Widgets - remover", "grupo": "ESSENCIAIS", "risco": "médio", "ram": (100, 250),
         "desc": "Remove o painel de Widgets do Windows 11 e os pacotes que o executam.",
         "pos": "Um dos maiores ganhos da lista: cerca de 100 a 250 MB de RAM e menos processos em segundo plano.",
         "neg": "Remove pacotes do sistema. Para voltar é preciso reinstalar pela Microsoft Store ('Windows Web Experience Pack'), com internet.",
@@ -338,7 +338,7 @@ OPCOES = {
                        "Windows Web Experience Pack")],
     },
     "bing": {
-        "nome": "Pesquisa Bing no Menu Iniciar — desativar", "grupo": "PREFERÊNCIAS", "risco": "baixo", "ram": (20, 80),
+        "nome": "Pesquisa Bing no Menu Iniciar - desativar", "grupo": "PREFERÊNCIAS", "risco": "baixo", "ram": (20, 80),
         "desc": "Faz a busca do Menu Iniciar procurar apenas no seu PC.",
         "pos": "Busca mais rápida, sem consultas à internet a cada tecla, e cerca de 20 a 80 MB de RAM a menos no processo de pesquisa.",
         "neg": "Você perde resultados da web e cálculos/conversões diretos na busca.",
@@ -346,7 +346,7 @@ OPCOES = {
         "acoes": [REG("HKCU", r"Software\Microsoft\Windows\CurrentVersion\Search", "BingSearchEnabled", 0, padrao=1)],
     },
     "edge": {
-        "nome": "Microsoft Edge — reduzir (debloat)", "grupo": "AVANÇADO — CUIDADO", "risco": "médio", "ram": (0, 100),
+        "nome": "Microsoft Edge - reduzir (debloat)", "grupo": "AVANÇADO - CUIDADO", "risco": "médio", "ram": (0, 100),
         "desc": "Desliga por política as recomendações, Rewards, assistente de compras, coleções, widget web, diagnósticos e atalho automático do Edge. O Edge continua instalado.",
         "pos": "Menos pop-ups, notificações e telemetria do Edge. Ganho de RAM de baixo a médio: ~0 a 100 MB.",
         "neg": "Você perde recursos opcionais do Edge (Coleções, compras) e o navegador passa a mostrar 'gerenciado pela sua organização' em edge://policy.",
@@ -355,7 +355,7 @@ OPCOES = {
                  + [REG("HKLM", _EDGE + r"\ExtensionInstallBlocklist", "1", "ofefcgjbeghpigppfmkologfjadafddi", tipo="sz")],
     },
     "onedrive": {
-        "nome": "Microsoft OneDrive — remover", "grupo": "AVANÇADO — CUIDADO", "risco": "ALTO", "ram": (100, 250),
+        "nome": "Microsoft OneDrive - remover", "grupo": "AVANÇADO - CUIDADO", "risco": "ALTO", "ram": (100, 250),
         "desc": "Desinstala o OneDrive e para a sincronização em segundo plano.",
         "pos": "Libera cerca de 100 a 250 MB de RAM e reduz uso de CPU, disco e rede.",
         "neg": "Seus arquivos NÃO são apagados, mas arquivos que existem só na nuvem ('somente online') deixam de ficar acessíveis no PC. Se Desktop/Documentos/Imagens estão no OneDrive, sincronize e baixe tudo antes. Para voltar é preciso reinstalar (winget).",
@@ -363,7 +363,7 @@ OPCOES = {
         "acoes": [ONEDRIVE],
     },
     "ai": {
-        "nome": "Windows AI (Copilot, Recall) — desativar e remover", "grupo": "AVANÇADO — CUIDADO", "risco": "ALTO", "ram": (50, 300),
+        "nome": "Windows AI (Copilot, Recall) - desativar e remover", "grupo": "AVANÇADO - CUIDADO", "risco": "ALTO", "ram": (50, 300),
         "desc": "Desativa recursos de IA do Windows (IA no Bloco de Notas, página de componentes de IA, serviço WSAIFabricSvc, Recall) e remove o Copilot e o app Microsoft 365 (Office).",
         "pos": "Libera cerca de 50 a 300 MB de RAM e elimina processos de IA em segundo plano.",
         "neg": "Remove apps do sistema e marca um componente protegido (CoreAI) para remoção. A reversão é PARCIAL: Registro e serviços voltam, mas os apps precisam ser reinstalados pela Microsoft Store e alguns componentes só voltam com atualização/reparo do Windows.",
@@ -376,8 +376,8 @@ OPCOES = {
         ],
     },
 }
-GRUPOS = ["ESSENCIAIS", "PREFERÊNCIAS", "AVANÇADO — CUIDADO"]
-RECOMENDADOS = [i for i, o in OPCOES.items() if o["grupo"] != "AVANÇADO — CUIDADO"]
+GRUPOS = ["ESSENCIAIS", "PREFERÊNCIAS", "AVANÇADO - CUIDADO"]
+RECOMENDADOS = [i for i, o in OPCOES.items() if o["grupo"] != "AVANÇADO - CUIDADO"]
 
 
 # ======================================================================================
@@ -636,40 +636,76 @@ def criar_ponto_restauracao():
 # ======================================================================================
 # Interface (painel embutido na aba)
 # ======================================================================================
-# Tamanhos de fonte (pt) já com +25% em relação à versão anterior (10->12, 9->11, 8->10)
-FT = {"titulo": 12, "texto": 11, "pequeno": 10}
+FT = {"titulo": 11, "texto": 10, "pequeno": 9}
 
 
-class CaixaMarcar(tk.Frame):
-    """Caixa de marcação grande e clicável.
-    É feita com widgets comuns (Frame + Label) e cores-base, para o tema claro/noturno funcionar nela."""
-
+class CaixaMarcar(tk.Canvas):
     def __init__(self, master, variavel, lado, comando=None):
-        super().__init__(master, width=lado, height=lado, bg="#6c757d", cursor="hand2")
-        self.pack_propagate(False)
-        self.grid_propagate(False)
+        try:
+            fundo = master.cget("bg")
+        except tk.TclError:
+            fundo = "#121212"
+        super().__init__(
+            master, width=lado, height=lado, bg=fundo, cursor="hand2",
+            bd=0, highlightthickness=0, takefocus=1
+        )
+        self._lado = lado
         self._var, self._comando = variavel, comando
-        self._marca = tk.Label(self, text="", bg="#1a1a1a", fg="white", cursor="hand2",
-                               font=("Arial", -max(12, int(lado * 0.62)), "bold"))
-        self._marca.place(x=3, y=3, width=lado - 6, height=lado - 6)
-        for w in (self, self._marca):
-            w.bind("<Button-1>", self._alternar)
+        self._cores = {
+            "campo": "#1a1a1a", "borda": "#222222", "azul": "#2f81f7",
+            "texto": "#ffffff", "suave": "#8b949e",
+        }
+        self.bind("<Button-1>", self._alternar)
+        self.bind("<Return>", self._alternar)
+        self.bind("<space>", self._alternar)
         self._trace = variavel.trace_add("write", lambda *a: self._pintar())
         self.bind("<Destroy>", self._ao_destruir)
         self._pintar()
+
+    def _forma(self, x1, y1, x2, y2, raio, **opcoes):
+        pontos = [
+            x1 + raio, y1, x2 - raio, y1, x2, y1, x2, y1 + raio,
+            x2, y2 - raio, x2, y2, x2 - raio, y2, x1 + raio, y2,
+            x1, y2, x1, y2 - raio, x1, y1 + raio, x1, y1,
+        ]
+        return self.create_polygon(pontos, smooth=True, splinesteps=24, **opcoes)
 
     def _alternar(self, _e=None):
         self._var.set(not self._var.get())
         if self._comando:
             self._comando()
+        return "break"
 
     def _pintar(self):
         try:
             marcado = bool(self._var.get())
-            self._marca.configure(text="✔" if marcado else "", bg="#007bff" if marcado else "#1a1a1a")
-            self.configure(bg="#007bff" if marcado else "#6c757d")
+            self.delete("all")
+            preenchimento = self._cores["azul"] if marcado else self._cores["campo"]
+            borda = self._cores["azul"] if marcado else self._cores["suave"]
+            self._forma(
+                1, 1, self._lado - 1, self._lado - 1, max(4, self._lado // 5),
+                fill=preenchimento, outline=borda, width=1
+            )
+            if marcado:
+                self.create_line(
+                    self._lado * 0.25, self._lado * 0.52,
+                    self._lado * 0.43, self._lado * 0.70,
+                    self._lado * 0.76, self._lado * 0.32,
+                    fill="#ffffff", width=max(2, self._lado // 10),
+                    capstyle="round", joinstyle="round"
+                )
         except tk.TclError:
             pass
+
+    def _aplicar_paleta(self, pal):
+        for chave in self._cores:
+            if chave in pal:
+                self._cores[chave] = pal[chave]
+        try:
+            self.configure(bg=self.master.cget("bg"))
+        except tk.TclError:
+            pass
+        self._pintar()
 
     def _ao_destruir(self, e):
         if e.widget is self:
@@ -680,8 +716,9 @@ class CaixaMarcar(tk.Frame):
 
 
 class PainelOtimizadorSO(tk.Frame):
-    def __init__(self, master):
+    def __init__(self, master, painel_cls=None):
         super().__init__(master, bg="#000000")
+        self._painel_cls = painel_cls
         self.vars = {i: tk.BooleanVar(value=False) for i in OPCOES}
         self.var_restore = tk.BooleanVar(value=True)
         self._ocupado = False
@@ -696,17 +733,17 @@ class PainelOtimizadorSO(tk.Frame):
     # ----- layout -----
     def _lado(self, pt, fator, minimo, maximo, negrito=False):
         """Lado (px) de uma caixa de marcação proporcional à altura de linha da fonte (acompanha a escala do Windows)."""
-        altura = tkfont.Font(root=self, font=("Arial", pt, "bold" if negrito else "normal")).metrics("linespace")
+        altura = tkfont.Font(root=self, font=(tema.FONTE, pt, "bold" if negrito else "normal")).metrics("linespace")
         return int(max(minimo, min(maximo, altura * fator)))
 
     def _montar(self):
-        self._lado_caixa = self._lado(FT["titulo"], 3.4, 56, 110, negrito=True)
+        self._lado_caixa = self._lado(FT["texto"], 1.45, 23, 28, negrito=True)
         topo = tk.Frame(self, bg="#000000")
-        topo.pack(fill="x", pady=(0, 8))
-        self.lbl_ram = tk.Label(topo, text="", font=("Arial", FT["texto"], "bold"), fg="#38b6ff", bg="#000000")
+        topo.pack(fill="x", pady=(0, 7))
+        self.lbl_ram = tk.Label(topo, text="", font=(tema.FONTE, FT["texto"], "bold"), fg="#38b6ff", bg="#000000")
         self.lbl_ram.pack(side="left")
-        dica = tk.Label(topo, text="  •  Marque o que deseja e clique em APLICAR. Tudo pode ser revertido.",
-                        font=("Arial", FT["texto"]), fg="#aaaaaa", bg="#000000", justify="left", anchor="w")
+        dica = tk.Label(topo, text="  •  Selecione os ajustes desejados. Todas as alterações podem ser revertidas.",
+                        font=(tema.FONTE, FT["texto"]), fg="#aaaaaa", bg="#000000", justify="left", anchor="w")
         dica.pack(side="left", fill="x", expand=True)
         topo.bind("<Configure>", lambda e: dica.configure(
             wraplength=max(220, e.width - self.lbl_ram.winfo_reqwidth() - 16)))
@@ -715,11 +752,11 @@ class PainelOtimizadorSO(tk.Frame):
             faixa = tk.Frame(self, bg="#121212", highlightbackground="#ff9800", highlightthickness=1)
             faixa.pack(fill="x", pady=(0, 6))
             btn_admin = tk.Button(faixa, text="REABRIR COMO ADMINISTRADOR", bg="#ff9800", fg="white", relief="flat",
-                                  font=("Arial", FT["texto"], "bold"), padx=10, pady=4, cursor="hand2",
+                                  font=(tema.FONTE, FT["texto"], "bold"), padx=10, pady=4, cursor="hand2",
                                   command=self._reabrir_como_admin)
             btn_admin.pack(side="right", padx=10, pady=6)
-            aviso_admin = tk.Label(faixa, text="⚠ Para alterar o Registro e os serviços o Roda Liso precisa rodar como Administrador.",
-                                   font=("Arial", FT["texto"]), fg="#ff9800", bg="#121212", justify="left", anchor="w")
+            aviso_admin = tk.Label(faixa, text="Permissão de administrador necessária para alterar Registro e serviços.",
+                                   font=(tema.FONTE, FT["texto"]), fg="#ff9800", bg="#121212", justify="left", anchor="w")
             aviso_admin.pack(side="left", padx=10, pady=6, fill="x", expand=True)
             faixa.bind("<Configure>", lambda e: aviso_admin.configure(
                 wraplength=max(200, e.width - btn_admin.winfo_reqwidth() - 50)))
@@ -741,7 +778,7 @@ class PainelOtimizadorSO(tk.Frame):
 
         rodape = tk.Frame(self, bg="#000000")
         rodape.pack(fill="x", pady=(10, 0))
-        self.lbl_estimativa = tk.Label(rodape, text="", font=("Arial", FT["texto"], "bold"), fg="#28a745",
+        self.lbl_estimativa = tk.Label(rodape, text="", font=(tema.FONTE, FT["texto"], "bold"), fg="#28a745",
                                        bg="#000000", justify="left")
         self.lbl_estimativa.pack(anchor="w")
         rodape.bind("<Configure>", self._ao_redimensionar_rodape)
@@ -749,26 +786,28 @@ class PainelOtimizadorSO(tk.Frame):
         # Linha do ponto de restauração: texto à esquerda, caixa de marcação à direita (mesma coluna das opções)
         self.linha_restore = tk.Frame(rodape, bg="#000000")
         self.linha_restore.pack(fill="x", pady=(8, 0))
-        lbl_restore = tk.Label(self.linha_restore, text="Criar ponto de restauração do Windows antes de aplicar (recomendado)",
-                               font=("Arial", FT["texto"]), fg="#ffffff", bg="#000000", cursor="hand2")
+        lbl_restore = tk.Label(self.linha_restore, text="Criar ponto de restauração antes de aplicar (recomendado)",
+                               font=(tema.FONTE, FT["texto"]), fg="#ffffff", bg="#000000", cursor="hand2")
         lbl_restore.pack(side="left")
         lbl_restore.bind("<Button-1>", lambda e: self.var_restore.set(not self.var_restore.get()))
-        CaixaMarcar(self.linha_restore, self.var_restore, self._lado(FT["texto"], 2.0, 30, 52)).pack(side="right")
+        CaixaMarcar(self.linha_restore, self.var_restore, self._lado(FT["texto"], 1.35, 22, 26)).pack(side="right")
 
         # Botões de uma ponta a outra, com a mesma largura
         botoes = tk.Frame(rodape, bg="#000000")
         botoes.pack(fill="x", pady=(12, 0))
         self._botoes_frame, self._botoes = botoes, []
-        for texto, cor, cmd in (("APLICAR SELECIONADOS", "#007bff", self.aplicar_selecionados),
-                                ("REVERTER SELECIONADOS", "#dc3545", self.reverter_selecionados),
-                                ("SELECIONAR RECOMENDADOS", "#6c757d", self.selecionar_recomendados),
-                                ("LIMPAR SELEÇÃO", "#6c757d", self.limpar_selecao)):
-            self._botoes.append(tk.Button(botoes, text=texto, bg=cor, fg="white", font=("Arial", FT["texto"], "bold"),
-                                          relief="flat", padx=12, pady=12, cursor="hand2", command=cmd))
+        for texto, cor, cmd in (("APLICAR", "#2f81f7", self.aplicar_selecionados),
+                                ("REVERTER", "#4b5563", self.reverter_selecionados),
+                                ("RECOMENDADOS", "#4b5563", self.selecionar_recomendados),
+                                ("LIMPAR SELEÇÃO", "#4b5563", self.limpar_selecao)):
+            self._botoes.append(tk.Button(botoes, text=texto, bg=cor, activebackground=cor,
+                                          fg="white", activeforeground="white",
+                                          font=(tema.FONTE, FT["texto"], "bold"), relief="flat", bd=0,
+                                          padx=12, pady=12, cursor="hand2", command=cmd))
         self._colunas_botoes = None
         botoes.bind("<Configure>", self._organizar_botoes)
         self._organizar_botoes()
-        self.lbl_status = tk.Label(rodape, text="", font=("Arial", FT["texto"]), fg="#aaaaaa", bg="#000000", justify="left")
+        self.lbl_status = tk.Label(rodape, text="", font=(tema.FONTE, FT["texto"]), fg="#aaaaaa", bg="#000000", justify="left")
         self.lbl_status.pack(anchor="w", pady=(8, 0))
         self.after_idle(self._alinhar_rodape)
 
@@ -809,7 +848,7 @@ class PainelOtimizadorSO(tk.Frame):
         self.canvas.yview_scroll(int(-e.delta / 120), "units")
 
     def _largura_texto(self, largura_canvas):
-        return max(300, largura_canvas - 70 - self._lado_caixa - 40)
+        return max(300, largura_canvas - self._lado_caixa - 115)
 
     def _ao_redimensionar(self, e):
         self.canvas.itemconfigure(self._janela, width=e.width)
@@ -825,8 +864,8 @@ class PainelOtimizadorSO(tk.Frame):
         backup = carregar_backup()["opcoes"]
         largura = self._largura_texto(self.canvas.winfo_width())
         for grupo in GRUPOS:
-            tk.Label(self.lista, text=grupo, font=("Arial", FT["texto"], "bold"), fg="#38b6ff",
-                     bg="#000000").pack(anchor="w", pady=(12, 3))
+            tk.Label(self.lista, text=grupo.upper(), font=(tema.FONTE, FT["pequeno"], "bold"), fg="#38b6ff",
+                     bg="#000000").pack(anchor="w", pady=(10, 3))
             for oid, op in OPCOES.items():
                 if op["grupo"] == grupo:
                     self._cartao(oid, op, backup, largura)
@@ -837,13 +876,18 @@ class PainelOtimizadorSO(tk.Frame):
 
     def _cartao(self, oid, op, backup, largura):
         est = estado_opcao(op)
-        c = tk.Frame(self.lista, bg="#121212", highlightbackground="#222222", highlightthickness=1, padx=14, pady=12)
-        c.pack(fill="x", padx=(0, 8), pady=5)
+        if self._painel_cls:
+            painel = self._painel_cls(self.lista, raio=12, padding=12)
+            painel.pack(fill="x", padx=(0, 8), pady=4)
+            c = painel.conteudo
+        else:
+            c = tk.Frame(self.lista, bg="#121212", highlightbackground="#222222", highlightthickness=1, padx=14, pady=12)
+            c.pack(fill="x", padx=(0, 8), pady=5)
         c.grid_columnconfigure(0, weight=1)
 
         topo = tk.Frame(c, bg="#121212")
         topo.grid(row=0, column=0, columnspan=2, sticky="ew")
-        lbl_nome = tk.Label(topo, text=op["nome"], font=("Arial", FT["titulo"], "bold"), fg="#ffffff", bg="#121212",
+        lbl_nome = tk.Label(topo, text=op["nome"], font=(tema.FONTE, FT["titulo"], "bold"), fg="#ffffff", bg="#121212",
                             justify="left", anchor="w")
         lbl_nome.grid(row=0, column=0, sticky="w")
         etiquetas = tk.Frame(topo, bg="#121212")
@@ -854,15 +898,15 @@ class PainelOtimizadorSO(tk.Frame):
         elif est == "parcial":
             chip, cor = "◐ PARCIALMENTE ATIVO", "#ff9800"
         elif est == "n/a":
-            chip, cor = "— não se aplica a este PC", "#aaaaaa"
+            chip, cor = "não se aplica a este PC", "#aaaaaa"
         elif est == "verificando":
             chip, cor = "… verificando", "#aaaaaa"
         else:
             chip, cor = "○ desativado", "#aaaaaa"
-        tk.Label(etiquetas, text=chip, font=("Arial", FT["pequeno"], "bold"), fg=cor, bg="#121212").pack(side="right")
+        tk.Label(etiquetas, text=chip, font=(tema.FONTE, FT["pequeno"]), fg=cor, bg="#121212").pack(side="right")
         cor_risco = {"baixo": "#28a745", "médio": "#ff9800", "ALTO": "#dc3545"}[op["risco"]]
-        tk.Label(etiquetas, text=f"RISCO {op['risco'].upper()}", font=("Arial", FT["pequeno"], "bold"), fg=cor_risco,
-                 bg="#121212").pack(side="right", padx=14)
+        tk.Label(etiquetas, text=f"RISCO {op['risco'].upper()}", font=(tema.FONTE, FT["pequeno"], "bold"), fg=cor_risco,
+                 bg="#121212").pack(side="right", padx=10)
 
         def _posicionar(e, nome=lbl_nome, et=etiquetas, t=topo):
             # cabe tudo na mesma linha? senão, as etiquetas descem para uma linha própria, alinhadas à direita
@@ -876,19 +920,23 @@ class PainelOtimizadorSO(tk.Frame):
 
         lo, hi = op["ram"]
         ram = "RAM: sem ganho relevante" if hi == 0 else f"RAM estimada: ~{lo} a {hi} MB"
-        linhas = [(op["desc"], "#ffffff", ("Arial", FT["texto"])),
-                  (f"✓ {op['pos']}", "#28a745", ("Arial", FT["texto"], "bold")),
-                  (f"⚠ {op['neg']}", "#ff9800", ("Arial", FT["texto"])),
-                  (f"📊 {ram}" + (f"   ↻ {op['reinicio']}" if op["reinicio"] else ""), "#aaaaaa",
-                   ("Arial", FT["pequeno"], "italic"))]
+        linhas = [(op["desc"], "#e0e0e0", (tema.FONTE, FT["texto"])),
+                  (f"Benefício · {op['pos']}", "#28a745", (tema.FONTE, FT["texto"])),
+                  (f"Atenção · {op['neg']}", "#ff9800", (tema.FONTE, FT["texto"])),
+                  (f"{ram}" + (f"  ·  {op['reinicio']}" if op["reinicio"] else ""), "#aaaaaa",
+                   (tema.FONTE, FT["pequeno"], "italic"))]
         for i, (texto, cor_t, fonte) in enumerate(linhas):
             lbl = tk.Label(c, text=texto, font=fonte, fg=cor_t, bg="#121212", justify="left", anchor="w",
                            wraplength=largura)
-            lbl.grid(row=1 + i, column=0, sticky="w", pady=(4, 0))
+            lbl.grid(row=1 + i, column=0, sticky="w", pady=(5 if i else 8, 0))
             self._rotulos.append(lbl)
-        # caixa de marcação grande, no lado direito, centralizada na altura dos textos
-        CaixaMarcar(c, self.vars[oid], self._lado_caixa, comando=self._atualizar_estimativa).grid(
-            row=1, column=1, rowspan=len(linhas), padx=(20, 0))
+        area_check = tk.Frame(c, bg="#121212")
+        area_check.grid(row=1, column=1, rowspan=len(linhas), padx=(16, 0), sticky="n")
+        tk.Label(
+            area_check, text="Selecionar", font=(tema.FONTE, FT["pequeno"]),
+            fg="#aaaaaa", bg="#121212"
+        ).pack(pady=(8, 5))
+        CaixaMarcar(area_check, self.vars[oid], self._lado_caixa, comando=self._atualizar_estimativa).pack()
 
     # ----- estimativa -----
     def _atualizar_estimativa(self):
@@ -902,7 +950,7 @@ class PainelOtimizadorSO(tk.Frame):
             self.lbl_estimativa.config(text="Nenhum item novo selecionado.")
         else:
             self.lbl_estimativa.config(
-                text=f"{n} item(ns) a aplicar — ganho estimado de RAM: ~{lo} a {hi} MB (aproximado; varia de PC para PC e os valores se sobrepõem em parte)")
+                text=f"{n} item(ns) a aplicar - ganho estimado de RAM: ~{lo} a {hi} MB (aproximado; varia de PC para PC e os valores se sobrepõem em parte)")
 
     def selecionar_recomendados(self):
         for oid, v in self.vars.items():
@@ -962,7 +1010,7 @@ class PainelOtimizadorSO(tk.Frame):
         texto = "Aplicar estas otimizações?\n\n" + "\n".join(f"  • {OPCOES[i]['nome']}" for i in ids)
         altos = [i for i in ids if OPCOES[i]["risco"] == "ALTO"]
         if altos:
-            texto += "\n\nATENÇÃO — itens de risco ALTO (removem programas/componentes):\n" + "\n".join(f"  • {OPCOES[i]['nome']}" for i in altos)
+            texto += "\n\nATENÇÃO: itens de risco ALTO (removem programas/componentes):\n" + "\n".join(f"  • {OPCOES[i]['nome']}" for i in altos)
             texto += "\nPara voltar atrás é preciso reinstalar pela Microsoft Store/winget."
         if "onedrive" in ids and onedrive_protege_pastas():
             texto += ("\n\n⚠ Suas pastas Desktop/Documentos/Imagens estão dentro do OneDrive. Certifique-se de que "

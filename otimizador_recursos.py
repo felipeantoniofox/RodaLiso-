@@ -114,7 +114,7 @@ def _janela_confirmacao(jogo: str, motivo: str, grupos: dict) -> bool:
     linhas = []
     for g in sorted(grupos.values(), key=lambda x: x["ram_mb"], reverse=True):
         ram = f"{g['ram_mb'] / 1024:.1f} GB" if g["ram_mb"] >= 1024 else f"{g['ram_mb']:.0f} MB"
-        linhas.append(f"  • {g['nome']} — {ram}, CPU {g['cpu']:.0f}% ({g['procs']} processos)")
+        linhas.append(f"  • {g['nome']} - {ram}, CPU {g['cpu']:.0f}% ({g['procs']} processos)")
     total_gb = sum(g["ram_mb"] for g in grupos.values()) / 1024
 
     texto = (

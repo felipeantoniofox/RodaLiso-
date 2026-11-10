@@ -55,7 +55,7 @@ OPCOES_BG = ("bg", "highlightbackground", "selectcolor", "activebackground",
              "troughcolor", "buttonbackground", "readonlybackground", "disabledbackground")
 OPCOES_FG = ("fg", "insertbackground", "activeforeground", "disabledforeground")
 
-_estado = {"tema": "noturno", "raiz": None, "botao": None, "pontos": []}
+_estado = {"tema": "noturno", "raiz": None, "botao": None, "menu": None, "pontos": []}
 
 
 # ----------------------------------------------------------------- utilidades
@@ -71,6 +71,20 @@ def _clarear(cor_hex, f=0.14):
     r, g, b = (int(cor_hex[i:i + 2], 16) for i in (1, 3, 5))
     r, g, b = (int(c + (255 - c) * f) for c in (r, g, b))
     return "#%02x%02x%02x" % (r, g, b)
+
+
+def _forma_arredondada(canvas, x1, y1, x2, y2, raio, **opcoes):
+    """Retângulo arredondado usado pelos controles desenhados no Canvas."""
+    raio = max(2, min(raio, (x2 - x1) / 2, (y2 - y1) / 2))
+    pontos = [
+        x1 + raio, y1, x2 - raio, y1,
+        x2, y1, x2, y1 + raio,
+        x2, y2 - raio, x2, y2,
+        x2 - raio, y2, x1 + raio, y2,
+        x1, y2, x1, y2 - raio,
+        x1, y1 + raio, x1, y1,
+    ]
+    return canvas.create_polygon(pontos, smooth=True, splinesteps=32, **opcoes)
 
 
 def _papel(hex_cor, bg_kind):
@@ -274,6 +288,9 @@ def aplicar(raiz, nome=None):
             botao.definir("\u2600", "Usar tema claro")
         else:
             botao.definir("\u263e", "Usar tema noturno")
+    menu = _estado.get("menu")
+    if menu is not None:
+        menu.aplicar_paleta(pal)
     for cv, item in _estado["pontos"]:
         try:
             cv.itemconfigure(item, fill=pal["destaque"])
@@ -454,7 +471,7 @@ class BotaoIcone(tk.Canvas):
         self._desenhar()
 
 
-def barra_de_abas(raiz, nb, icones):
+def _barra_de_abas_legada(raiz, nb, icones):
     """Troca as abas nativas por uma barra que preenche TODA a largura, com um ícone depois do nome.
     A navegação continua sendo do Notebook (nb.select), então nada muda no funcionamento.
 
@@ -583,6 +600,371 @@ def barra_de_abas(raiz, nb, icones):
     return barra
 
 
+class MenuExplosivo:
+    """Menu vertical compacto para navegar entre as áreas sem uma barra de abas permanente."""
+
+    def __init__(self, raiz, cabecalho, nb, icones):
+        self.raiz = raiz
+        self.cabecalho = cabecalho
+        self.nb = nb
+        self.icones = icones
+        self.pal = TEMAS[_estado["tema"]]
+        self.abas_conteudo = list(nb.tabs())
+        self.aba_anterior = nb.select() or (self.abas_conteudo[0] if self.abas_conteudo else "")
+        self.hover = None
+        self.tiles = []
+
+        nb.configure(style="Plano.TNotebook")
+        _estilo_ttk(raiz, self.pal)
+        try:
+            nb.pack_configure(pady=(8, 10))
+        except tk.TclError:
+            pass
+
+        self.aba_menu = ttk.Frame(nb)
+        nb.add(self.aba_menu, text="Menu")
+        self.canvas = tk.Canvas(
+            self.aba_menu, bg=self.pal["fundo"], bd=0,
+            highlightthickness=0, cursor="arrow", takefocus=1
+        )
+        self.canvas.pack(fill="both", expand=True)
+        self.canvas.bind("<Configure>", lambda _e: self._desenhar())
+        self.canvas.bind("<Motion>", self._mover_mouse)
+        self.canvas.bind("<Leave>", lambda _e: self._definir_hover(None))
+        self.canvas.bind("<ButtonRelease-1>", self._clicar)
+        self.canvas.bind("<Escape>", lambda _e: self.fechar())
+
+        self.botao = BotaoIcone(cabecalho, comando=self.alternar, tam=14)
+        self.botao.definir("\u25a6", "Abrir navegação")
+        self.botao._aplicar_paleta(self.pal)
+        self.botao.pack(side="right", padx=(0, 4), pady=5)
+        nb.bind("<<NotebookTabChanged>>", self._mudou_aba, add="+")
+
+    def alternar(self):
+        if self.nb.select() == str(self.aba_menu):
+            self.fechar()
+        else:
+            self.abrir()
+
+    def abrir(self):
+        atual = self.nb.select()
+        if atual != str(self.aba_menu):
+            self.aba_anterior = atual
+        if not self.abas_conteudo:
+            return
+        self.nb.select(self.aba_menu)
+        self.botao.definir("\u00d7", "Fechar navegação")
+        self.hover = None
+        self._desenhar()
+        self.canvas.focus_set()
+
+    def _mudou_aba(self, _evento=None):
+        no_menu = self.nb.select() == str(self.aba_menu)
+        self.botao.definir("\u00d7" if no_menu else "\u25a6", "Fechar navegação" if no_menu else "Abrir navegação")
+        self._desenhar()
+
+    def _alvo_em(self, x, y):
+        for indice, (x1, y1, x2, y2, _aba) in enumerate(self.tiles):
+            if x1 <= x <= x2 and y1 <= y <= y2:
+                return ("tile", indice)
+        return None
+
+    def _mover_mouse(self, evento):
+        alvo = self._alvo_em(evento.x, evento.y)
+        if self.canvas is not None:
+            self.canvas.configure(cursor="hand2" if alvo is not None else "arrow")
+        self._definir_hover(alvo)
+
+    def _definir_hover(self, alvo):
+        if alvo != self.hover:
+            self.hover = alvo
+            self._desenhar()
+
+    def _clicar(self, evento):
+        alvo = self._alvo_em(evento.x, evento.y)
+        if alvo is None:
+            return
+        _tipo, indice = alvo
+        aba = self.tiles[indice][4]
+        self.aba_anterior = aba
+        self.nb.select(aba)
+        self.hover = None
+
+    def _desenhar(self):
+        if self.nb.select() != str(self.aba_menu):
+            return
+        cv = self.canvas
+        largura, altura = cv.winfo_width(), cv.winfo_height()
+        if largura < 200 or altura < 200:
+            return
+        cv.delete("all")
+        cv.configure(bg=self.pal["fundo"])
+
+        card_largura = min(360, largura - 48)
+        cab_altura = 52
+        linha_altura = 46
+        margem_lista = 8
+        lista_altura = margem_lista * 2 + len(self.abas_conteudo) * linha_altura
+        espaco = 12
+        total_altura = cab_altura + espaco + lista_altura
+        x1 = int((largura - card_largura) / 2)
+        x2 = x1 + card_largura
+        cab_y1 = max(34, int((altura - total_altura) / 2))
+        cab_y2 = cab_y1 + cab_altura
+        lista_y1 = cab_y2 + espaco
+        lista_y2 = lista_y1 + lista_altura
+
+        _forma_arredondada(
+            cv, x1, cab_y1, x2, cab_y2, 12,
+            fill=self.pal["campo"], outline=self.pal["borda"], width=1
+        )
+        cv.create_text(
+            x1 + 18, (cab_y1 + cab_y2) / 2, text="MENU PRINCIPAL", anchor="w",
+            font=(FONTE, 10, "bold"), fill=self.pal["texto"]
+        )
+        grade_x = x2 - 28
+        grade_y = (cab_y1 + cab_y2) / 2
+        for dx, dy in ((-5, -5), (3, -5), (-5, 3), (3, 3)):
+            cv.create_rectangle(
+                grade_x + dx, grade_y + dy, grade_x + dx + 4, grade_y + dy + 4,
+                fill=self.pal["suave"], outline=""
+            )
+
+        _forma_arredondada(
+            cv, x1, lista_y1, x2, lista_y2, 12,
+            fill=self.pal["painel"], outline=self.pal["borda"], width=1
+        )
+        seta_x = x2 - 46
+        cv.create_polygon(
+            seta_x - 9, lista_y1, seta_x + 9, lista_y1, seta_x, lista_y1 - 10,
+            fill=self.pal["painel"], outline=self.pal["painel"]
+        )
+
+        self.tiles = []
+        for indice, aba in enumerate(self.abas_conteudo):
+            y1 = lista_y1 + margem_lista + indice * linha_altura
+            y2 = y1 + linha_altura
+            self.tiles.append((x1 + 8, y1, x2 - 8, y2, aba))
+
+        for indice, (x1, y1, x2, y2, aba) in enumerate(self.tiles):
+            nome = self.nb.tab(aba, "text")
+            icone = _icone_limpo(self.icones.get(nome, "•"))
+            ativo = aba == self.aba_anterior
+            sobre = self.hover == ("tile", indice)
+            if ativo or sobre:
+                fundo_item = self.pal["campo"] if ativo else _clarear(self.pal["painel"], 0.045)
+                _forma_arredondada(
+                    cv, x1, y1 + 3, x2, y2 - 3, 8,
+                    fill=fundo_item, outline=""
+                )
+            if ativo:
+                cv.create_rectangle(
+                    x1, y1 + 12, x1 + 3, y2 - 12,
+                    fill=self.pal["destaque"], outline=""
+                )
+            cv.create_text(
+                x1 + 16, (y1 + y2) / 2, text=nome, anchor="w",
+                font=(FONTE, 10, "bold" if ativo else "normal"),
+                fill=self.pal["texto"] if (ativo or sobre) else self.pal["suave"]
+            )
+            cv.create_text(
+                x2 - 18, (y1 + y2) / 2, text=icone,
+                font=(FONTE_ICONE, 12),
+                fill=self.pal["destaque"] if ativo else self.pal["suave"]
+            )
+
+    def fechar(self):
+        if self.nb.select() == str(self.aba_menu):
+            destino = self.aba_anterior if self.aba_anterior in self.abas_conteudo else self.abas_conteudo[0]
+            self.nb.select(destino)
+        self.hover = None
+        self.botao.definir("\u25a6", "Abrir navegação")
+
+    def aplicar_paleta(self, pal):
+        self.pal = pal
+        self.botao._aplicar_paleta(pal)
+        self.canvas.configure(bg=pal["fundo"])
+        self._desenhar()
+
+
+class MenuNavegacaoCombo:
+    """Combobox no cabeçalho que controla as páginas escondidas do Notebook."""
+
+    def __init__(self, raiz, cabecalho, nb):
+        self.raiz = raiz
+        self.nb = nb
+        self.abas = list(nb.tabs())
+        self.nomes = [nb.tab(aba, "text") for aba in self.abas]
+
+        nb.configure(style="Plano.TNotebook")
+        try:
+            nb.pack_configure(pady=(8, 10))
+        except tk.TclError:
+            pass
+
+        if self.abas:
+            nb.select(self.abas[0])
+        self.valor = tk.StringVar(raiz, value=self.nomes[0] if self.nomes else "")
+        self.combo = ttk.Combobox(
+            cabecalho, textvariable=self.valor, values=self.nomes,
+            state="readonly", width=24, font=(FONTE, 10), style="Navegacao.TCombobox"
+        )
+        self.combo._fonte_lista = (FONTE, 10)
+        self.combo.pack(side="right", padx=(0, 5), pady=7, ipady=2)
+        self.combo.bind("<<ComboboxSelected>>", self._selecionar)
+        nb.bind("<<NotebookTabChanged>>", self._sincronizar, add="+")
+        self.aplicar_paleta(TEMAS[_estado["tema"]])
+
+    def _selecionar(self, _evento=None):
+        try:
+            indice = self.nomes.index(self.valor.get())
+        except ValueError:
+            return
+        self.nb.select(self.abas[indice])
+
+    def _sincronizar(self, _evento=None):
+        atual = self.nb.select()
+        if atual in self.abas:
+            self.valor.set(self.nomes[self.abas.index(atual)])
+
+    def aplicar_paleta(self, pal):
+        estilo = ttk.Style(self.raiz)
+        estilo.configure(
+            "Navegacao.TCombobox", background=pal["campo"], fieldbackground=pal["campo"],
+            foreground=pal["texto"], arrowcolor=pal["suave"], bordercolor=pal["borda"],
+            lightcolor=pal["borda"], darkcolor=pal["borda"], selectbackground=pal["campo"],
+            selectforeground=pal["texto"], padding=(9, 5), font=(FONTE, 10, "bold")
+        )
+        estilo.map(
+            "Navegacao.TCombobox", fieldbackground=[("readonly", pal["campo"])],
+            foreground=[("readonly", pal["texto"])],
+            selectbackground=[("readonly", pal["campo"])],
+            selectforeground=[("readonly", pal["texto"])]
+        )
+        _lista_do_combobox(self.combo, pal)
+
+
+class SidebarNavegacao:
+    """Navegação lateral com seleção e hover arredondados."""
+
+    LARGURA = 204
+
+    def __init__(self, raiz, nb, icones):
+        self.raiz = raiz
+        self.nb = nb
+        self.icones = icones
+        self.pal = TEMAS[_estado["tema"]]
+        self.abas = list(nb.tabs())
+        self.hover = None
+        self.itens = []
+
+        nb.configure(style="Plano.TNotebook")
+        nb.pack_forget()
+        self.frame = tk.Frame(raiz, width=self.LARGURA, bg=self.pal["fundo"], bd=0)
+        self.frame.pack(side="left", fill="y", padx=(10, 0), pady=(8, 10))
+        self.frame.pack_propagate(False)
+        self.canvas = tk.Canvas(
+            self.frame, width=self.LARGURA, bg=self.pal["fundo"], bd=0,
+            highlightthickness=0, cursor="arrow", takefocus=1
+        )
+        self.canvas.pack(fill="both", expand=True)
+        nb.pack(side="left", fill="both", expand=True, padx=(8, 10), pady=(8, 10))
+
+        if self.abas:
+            nb.select(self.abas[0])
+        self.canvas.bind("<Configure>", lambda _e: self._desenhar())
+        self.canvas.bind("<Motion>", self._mover_mouse)
+        self.canvas.bind("<Leave>", lambda _e: self._definir_hover(None))
+        self.canvas.bind("<ButtonRelease-1>", self._clicar)
+        nb.bind("<<NotebookTabChanged>>", lambda _e: self._desenhar(), add="+")
+        self._desenhar()
+
+    def _montar_itens(self, largura):
+        topo = 54
+        altura = 46
+        espaco = 4
+        self.itens = []
+        for indice, aba in enumerate(self.abas):
+            y1 = topo + indice * (altura + espaco)
+            self.itens.append((10, y1, largura - 10, y1 + altura, aba))
+
+    def _alvo_em(self, x, y):
+        for indice, (x1, y1, x2, y2, _aba) in enumerate(self.itens):
+            if x1 <= x <= x2 and y1 <= y <= y2:
+                return indice
+        return None
+
+    def _mover_mouse(self, evento):
+        alvo = self._alvo_em(evento.x, evento.y)
+        self.canvas.configure(cursor="hand2" if alvo is not None else "arrow")
+        self._definir_hover(alvo)
+
+    def _definir_hover(self, alvo):
+        if alvo != self.hover:
+            self.hover = alvo
+            self._desenhar()
+
+    def _clicar(self, evento):
+        indice = self._alvo_em(evento.x, evento.y)
+        if indice is not None:
+            self.nb.select(self.itens[indice][4])
+
+    def _desenhar(self):
+        largura, altura = self.canvas.winfo_width(), self.canvas.winfo_height()
+        if largura < 40 or altura < 100:
+            return
+        self.canvas.delete("all")
+        self.canvas.configure(bg=self.pal["fundo"])
+        _forma_arredondada(
+            self.canvas, 1, 1, largura - 1, altura - 1, 16,
+            fill=self.pal["painel"], outline=self.pal["borda"], width=1
+        )
+        self.canvas.create_text(
+            20, 27, text="NAVEGAÇÃO", anchor="w",
+            font=(FONTE, 9, "bold"), fill=self.pal["suave"]
+        )
+
+        self._montar_itens(largura)
+        atual = self.nb.select()
+        for indice, (x1, y1, x2, y2, aba) in enumerate(self.itens):
+            nome = self.nb.tab(aba, "text")
+            icone = _icone_limpo(self.icones.get(nome, "•"))
+            ativo = aba == atual
+            sobre = indice == self.hover and not ativo
+            if ativo or sobre:
+                fundo = self.pal["campo"] if ativo else _clarear(self.pal["painel"], 0.055)
+                _forma_arredondada(
+                    self.canvas, x1, y1, x2, y2, 11,
+                    fill=fundo, outline=self.pal["borda"] if ativo else fundo, width=1
+                )
+            if ativo:
+                self.canvas.create_rectangle(
+                    x1, y1 + 13, x1 + 3, y2 - 13,
+                    fill=self.pal["destaque"], outline=""
+                )
+            cor = self.pal["texto"] if (ativo or sobre) else self.pal["suave"]
+            self.canvas.create_text(
+                x1 + 18, (y1 + y2) / 2, text=icone,
+                font=(FONTE_ICONE, 12), fill=self.pal["destaque"] if ativo else cor
+            )
+            self.canvas.create_text(
+                x1 + 42, (y1 + y2) / 2, text=nome, anchor="w",
+                width=max(80, x2 - x1 - 54), justify="left",
+                font=(FONTE, 9, "bold" if ativo else "normal"), fill=cor
+            )
+
+    def aplicar_paleta(self, pal):
+        self.pal = pal
+        self.frame.configure(bg=pal["fundo"])
+        self.canvas.configure(bg=pal["fundo"])
+        self._desenhar()
+
+
+def barra_de_abas(raiz, nb, icones, cabecalho=None):
+    """Substitui as abas visíveis por uma navegação lateral."""
+    return SidebarNavegacao(raiz, nb, icones)
+
+
 def _ponto(master, bg="#121212", diametro=10):
     """Bolinha do cabeçalho desenhada num Canvas: fica exatamente no centro da faixa, sem depender de fonte."""
     cv = tk.Canvas(master, width=diametro + 4, height=28, bg=bg, highlightthickness=0, bd=0)
@@ -621,7 +1003,7 @@ def instalar(raiz, antes_de=None, titulo="RODA LISO", subtitulo="Performance Hub
 
     aplicar(raiz)
     if icones_abas is not None and antes_de is not None:
-        barra_de_abas(raiz, antes_de, icones_abas)
+        _estado["menu"] = barra_de_abas(raiz, antes_de, icones_abas, cabecalho=cab)
     raiz.after(2000, lambda: _varredura(raiz))
 
 

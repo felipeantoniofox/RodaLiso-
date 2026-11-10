@@ -25,7 +25,6 @@ FONTE_ICONE = "Segoe UI Emoji"   # ícones ficam num rótulo próprio, com a fon
 # Ajuste fino do alinhamento vertical (em pixels; positivo = desce, negativo = sobe).
 # Se no seu Windows algum ícone ainda parecer 1-2 px acima/abaixo do texto, mexa só nestes valores.
 ICONE_DESLOC_Y = 0
-PONTO_DESLOC_Y = 1
 
 TEMAS = {
     "noturno": {
@@ -55,7 +54,7 @@ OPCOES_BG = ("bg", "highlightbackground", "selectcolor", "activebackground",
              "troughcolor", "buttonbackground", "readonlybackground", "disabledbackground")
 OPCOES_FG = ("fg", "insertbackground", "activeforeground", "disabledforeground")
 
-_estado = {"tema": "noturno", "raiz": None, "botao": None, "menu": None, "pontos": []}
+_estado = {"tema": "noturno", "raiz": None, "botao": None, "menu": None}
 
 
 # ----------------------------------------------------------------- utilidades
@@ -267,12 +266,29 @@ def _aplicar_widget(w, pal):
 
 
 def _passada_widgets(raiz, pal):
-    for w in _percorrer(raiz):
+    widgets = list(_percorrer(raiz))
+    for w in reversed(widgets):
         if isinstance(w, ttk.Widget):
             if isinstance(w, ttk.Combobox):
                 _lista_do_combobox(w, pal)
             continue
         _aplicar_widget(w, pal)
+    for w in widgets[1:]:
+        if not isinstance(w, (tk.Frame, tk.Label, tk.Checkbutton)):
+            continue
+        pai = getattr(w, "master", None)
+        if pai is None:
+            continue
+        try:
+            origem = getattr(w, "_rl_orig", {}).get("bg", str(w.cget("bg")))
+            origem_pai = getattr(pai, "_rl_orig", {}).get("bg", str(pai.cget("bg")))
+            papel = _papel(_hex(w, origem), True)
+            papel_pai = _papel(_hex(pai, origem_pai), True)
+            if papel == papel_pai and papel in PAPEIS_NEUTROS:
+                w.configure(bg=pai.cget("bg"))
+                w._rl_ult["bg"] = str(w.cget("bg"))
+        except (AttributeError, tk.TclError):
+            pass
 
 
 def aplicar(raiz, nome=None):
@@ -291,11 +307,7 @@ def aplicar(raiz, nome=None):
     menu = _estado.get("menu")
     if menu is not None:
         menu.aplicar_paleta(pal)
-    for cv, item in _estado["pontos"]:
-        try:
-            cv.itemconfigure(item, fill=pal["destaque"])
-        except tk.TclError:
-            pass
+    raiz.after_idle(lambda: _passada_widgets(raiz, pal))
 
 
 def reaplicar(widget):
@@ -468,6 +480,113 @@ class BotaoIcone(tk.Canvas):
         self.configure(bg=pal["painel"])
         if self._janela_dica is not None:
             self._cancelar_dica()
+        self._desenhar()
+
+
+class BarraRolagem(tk.Canvas):
+    def __init__(self, master, command, largura=12):
+        try:
+            fundo = master.cget("bg")
+        except tk.TclError:
+            fundo = "#000000"
+        super().__init__(
+            master, width=largura, bg=fundo, bd=0, highlightthickness=0,
+            cursor="hand2", takefocus=0
+        )
+        self._command = command
+        self._primeiro = 0.0
+        self._ultimo = 1.0
+        self._sobre = False
+        self._arrastando = False
+        self._deslocamento = 0
+        self._y1 = 0
+        self._y2 = 0
+        self._cores = {
+            "fundo": "#000000", "campo": "#1a1a1a", "borda": "#222222",
+            "suave": "#aaaaaa", "destaque": "#38b6ff",
+        }
+        self.bind("<Configure>", self._desenhar)
+        self.bind("<Enter>", self._entrar)
+        self.bind("<Leave>", self._sair)
+        self.bind("<Button-1>", self._pressionar)
+        self.bind("<B1-Motion>", self._arrastar)
+        self.bind("<ButtonRelease-1>", self._soltar)
+
+    def set(self, primeiro, ultimo):
+        self._primeiro = max(0.0, min(1.0, float(primeiro)))
+        self._ultimo = max(self._primeiro, min(1.0, float(ultimo)))
+        self._desenhar()
+
+    def _geometria(self):
+        altura = max(1, self.winfo_height())
+        margem = 4
+        trilho = max(1, altura - 2 * margem)
+        visivel = max(0.0, min(1.0, self._ultimo - self._primeiro))
+        tamanho = min(trilho, max(28, trilho * visivel))
+        limite = max(0.0, 1.0 - visivel)
+        progresso = self._primeiro / limite if limite else 0.0
+        y1 = margem + progresso * max(0, trilho - tamanho)
+        return margem, trilho, y1, y1 + tamanho, limite
+
+    def _desenhar(self, _evento=None):
+        largura = self.winfo_width()
+        altura = self.winfo_height()
+        if largura < 3 or altura < 3:
+            return
+        self.delete("all")
+        margem, trilho, self._y1, self._y2, _limite = self._geometria()
+        centro = largura / 2
+        _forma_arredondada(
+            self, centro - 2, margem, centro + 2, margem + trilho, 2,
+            fill=self._cores["campo"], outline=""
+        )
+        if self._ultimo - self._primeiro >= 0.999:
+            return
+        meia = 4 if self._sobre or self._arrastando else 3
+        cor = self._cores["destaque"] if self._arrastando else self._cores["suave"]
+        _forma_arredondada(
+            self, centro - meia, self._y1, centro + meia, self._y2, meia,
+            fill=cor, outline=""
+        )
+
+    def _entrar(self, _evento=None):
+        self._sobre = True
+        self._desenhar()
+
+    def _sair(self, _evento=None):
+        if not self._arrastando:
+            self._sobre = False
+            self._desenhar()
+
+    def _pressionar(self, evento):
+        if self._y1 <= evento.y <= self._y2:
+            self._arrastando = True
+            self._deslocamento = evento.y - self._y1
+        else:
+            self._command("scroll", -1 if evento.y < self._y1 else 1, "pages")
+        self._desenhar()
+        return "break"
+
+    def _arrastar(self, evento):
+        if not self._arrastando:
+            return "break"
+        margem, trilho, _y1, _y2, limite = self._geometria()
+        tamanho = self._y2 - self._y1
+        curso = max(1, trilho - tamanho)
+        topo = max(margem, min(margem + curso, evento.y - self._deslocamento))
+        self._command("moveto", ((topo - margem) / curso) * limite)
+        return "break"
+
+    def _soltar(self, _evento=None):
+        self._arrastando = False
+        self._desenhar()
+
+    def _aplicar_paleta(self, pal):
+        self._cores.update({k: pal[k] for k in self._cores if k in pal})
+        try:
+            self.configure(bg=self.master.cget("bg"))
+        except tk.TclError:
+            self.configure(bg=pal["fundo"])
         self._desenhar()
 
 
@@ -965,20 +1084,55 @@ def barra_de_abas(raiz, nb, icones, cabecalho=None):
     return SidebarNavegacao(raiz, nb, icones)
 
 
-def _ponto(master, bg="#121212", diametro=10):
-    """Bolinha do cabeçalho desenhada num Canvas: fica exatamente no centro da faixa, sem depender de fonte."""
-    cv = tk.Canvas(master, width=diametro + 4, height=28, bg=bg, highlightthickness=0, bd=0)
-    item = cv.create_oval(0, 0, diametro, diametro, fill="#38b6ff", outline="")
+class LogoCabecalho(tk.Canvas):
+    def __init__(self, master, caminho, tamanho=26):
+        super().__init__(
+            master, width=tamanho + 4, height=34, bg="#121212",
+            highlightthickness=0, bd=0
+        )
+        self._bg = "#121212"
+        self._fg = "#38b6ff"
+        self._fonte = None
+        self._imagem = None
+        try:
+            original = tk.PhotoImage(file=caminho)
+            fator = max(1, round(max(original.width(), original.height()) / tamanho))
+            self._fonte = original.subsample(fator, fator)
+        except tk.TclError:
+            pass
+        self.bind("<Configure>", self._desenhar)
 
-    def centralizar(e=None):
-        h = cv.winfo_height()
-        x0 = 2
-        y0 = (h - diametro) / 2 + PONTO_DESLOC_Y
-        cv.coords(item, x0, y0, x0 + diametro, y0 + diametro)
+    def _rgb(self, cor):
+        r, g, b = self.winfo_rgb(cor)
+        return r >> 8, g >> 8, b >> 8
 
-    cv.bind("<Configure>", centralizar)
-    _estado["pontos"].append((cv, item))
-    return cv
+    def _desenhar(self, _evento=None):
+        self.delete("all")
+        if self._fonte is None:
+            return
+        largura = self._fonte.width()
+        altura = self._fonte.height()
+        fundo = self._rgb(self._bg)
+        destaque = self._rgb(self._fg)
+        imagem = tk.PhotoImage(width=largura, height=altura)
+        for y in range(altura):
+            linha = []
+            for x in range(largura):
+                pixel = self._fonte.get(x, y)
+                if isinstance(pixel, str):
+                    pixel = self._rgb(pixel)
+                intensidade = 1.0 - (sum(pixel[:3]) / 765.0)
+                cor = tuple(round(fundo[i] + (destaque[i] - fundo[i]) * intensidade) for i in range(3))
+                linha.append(f"#{cor[0]:02x}{cor[1]:02x}{cor[2]:02x}")
+            imagem.put("{" + " ".join(linha) + "}", to=(0, y))
+        self._imagem = imagem
+        self.create_image(self.winfo_width() / 2, self.winfo_height() / 2, image=imagem)
+
+    def _aplicar_paleta(self, pal):
+        self._bg = pal["painel"]
+        self._fg = pal["destaque"]
+        self.configure(bg=self._bg)
+        self._desenhar()
 
 
 def instalar(raiz, antes_de=None, titulo="RODA LISO", subtitulo="Performance Hub", icones_abas=None):
@@ -993,7 +1147,8 @@ def instalar(raiz, antes_de=None, titulo="RODA LISO", subtitulo="Performance Hub
         opcoes["before"] = antes_de
     cab.pack(**opcoes)
 
-    _ponto(cab).pack(side="left", fill="y", padx=(14, 4), pady=8)
+    caminho_logo = os.path.join(BASE_DIR, "assets", "velocimetro.png")
+    LogoCabecalho(cab, caminho_logo).pack(side="left", fill="y", padx=(10, 4), pady=4)
     tk.Label(cab, text=titulo, font=(FONTE, 13, "bold"), fg="#ffffff", bg="#121212", bd=0, pady=0).pack(side="left")
     tk.Label(cab, text=subtitulo, font=(FONTE, 9), fg="#aaaaaa", bg="#121212", bd=0, pady=0).pack(side="left", padx=(10, 0), pady=(3, 0))
 

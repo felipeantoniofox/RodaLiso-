@@ -27,6 +27,397 @@ def _px(valor):
     """Converte um tamanho em pixels 'de projeto' (96 DPI) para pixels reais da tela."""
     return int(round(valor * ESCALA_UI))
 
+
+def _forma_arredondada(canvas, x1, y1, x2, y2, raio, **opcoes):
+    """Desenha um retângulo arredondado suave em um Canvas do Tk."""
+    raio = max(2, min(raio, (x2 - x1) / 2, (y2 - y1) / 2))
+    pontos = [
+        x1 + raio, y1, x2 - raio, y1,
+        x2, y1, x2, y1 + raio,
+        x2, y2 - raio, x2, y2,
+        x2 - raio, y2, x1 + raio, y2,
+        x1, y2, x1, y2 - raio,
+        x1, y1 + raio, x1, y1,
+    ]
+    return canvas.create_polygon(pontos, smooth=True, splinesteps=32, **opcoes)
+
+
+def _clarear_cor(cor, fator=0.12):
+    try:
+        r, g, b = (int(cor[i:i + 2], 16) for i in (1, 3, 5))
+        r, g, b = (min(255, int(c + (255 - c) * fator)) for c in (r, g, b))
+        return f"#{r:02x}{g:02x}{b:02x}"
+    except (TypeError, ValueError):
+        return cor
+
+
+class PainelArredondado(tk.Frame):
+    """Superfície com cantos arredondados que aceita widgets em `conteudo`."""
+
+    _TOKENS = {
+        "#000000": "fundo", "#121212": "painel", "#1a1a1a": "campo", "#222222": "borda",
+        "#38b6ff": "destaque", "#28a745": "ok", "#dc3545": "perigo", "#ff9800": "aviso",
+    }
+
+    def __init__(self, master, papel="painel", borda="#222222", raio=14, padding=18, altura=None):
+        try:
+            fundo_pai = master.cget("bg")
+        except tk.TclError:
+            fundo_pai = "#000000"
+        super().__init__(master, bg=fundo_pai, bd=0, highlightthickness=0)
+        self._papel = papel
+        self._cor_superficie = "#121212" if papel == "painel" else "#1a1a1a"
+        self._token_borda = self._TOKENS.get(borda.lower()) if isinstance(borda, str) else None
+        self._cor_borda = borda
+        self._raio = _px(raio)
+        self._padding = _px(padding)
+        self._canvas = tk.Canvas(self, bg=fundo_pai, bd=0, highlightthickness=0)
+        self._canvas.pack(fill="both", expand=True)
+        self.conteudo = tk.Frame(self._canvas, bg=self._cor_superficie, bd=0, highlightthickness=0)
+        self._janela = self._canvas.create_window(
+            self._padding, self._padding, anchor="nw", window=self.conteudo
+        )
+        if altura is not None:
+            self.configure(height=_px(altura))
+            self.pack_propagate(False)
+            self.grid_propagate(False)
+        self._canvas.bind("<Configure>", self._redesenhar)
+
+    def _redesenhar(self, _evento=None):
+        largura = self._canvas.winfo_width()
+        altura = self._canvas.winfo_height()
+        if largura < 4 or altura < 4:
+            return
+        self._canvas.delete("superficie")
+        _forma_arredondada(
+            self._canvas, 1, 1, largura - 1, altura - 1, self._raio,
+            fill=self._cor_superficie, outline=self._cor_borda, width=1, tags="superficie"
+        )
+        self._canvas.tag_lower("superficie")
+        interno_l = max(1, largura - 2 * self._padding)
+        interno_a = max(1, altura - 2 * self._padding)
+        self._canvas.coords(self._janela, self._padding, self._padding)
+        self._canvas.itemconfigure(self._janela, width=interno_l, height=interno_a)
+
+    def definir_borda(self, cor):
+        self._token_borda = self._TOKENS.get(cor.lower()) if isinstance(cor, str) else None
+        self._cor_borda = cor
+        self._redesenhar()
+
+    def _aplicar_paleta(self, pal):
+        self._cor_superficie = pal.get(self._papel, self._cor_superficie)
+        if self._token_borda:
+            self._cor_borda = pal[self._token_borda]
+        try:
+            fundo_pai = self.master.cget("bg")
+            self.configure(bg=fundo_pai)
+            self._canvas.configure(bg=fundo_pai)
+        except tk.TclError:
+            pass
+        self.conteudo.configure(bg=self._cor_superficie)
+        self._redesenhar()
+
+
+class ComboModerno(tk.Canvas):
+    """Seletor arredondado com popup escuro, hover e destaque de foco."""
+
+    def __init__(self, master, valores, fonte=("Segoe UI", 10), altura=44):
+        try:
+            fundo_pai = master.cget("bg")
+        except tk.TclError:
+            fundo_pai = "#121212"
+        super().__init__(
+            master, height=_px(altura), bg=fundo_pai, bd=0, highlightthickness=0,
+            cursor="hand2", takefocus=1
+        )
+        self._valores = list(valores)
+        self._valor = ""
+        self._fonte = fonte
+        self._popup = None
+        self._sobre = False
+        self._foco = False
+        self._cores = {
+            "campo": "#1f2630", "borda": "#2a313c", "texto": "#e6edf3",
+            "suave": "#8b949e", "destaque": "#4cc2ff", "painel": "#161b22",
+        }
+        self.bind("<Configure>", self._desenhar)
+        self.bind("<Button-1>", self._alternar_popup)
+        self.bind("<Enter>", lambda _e: self._mudar_sobre(True))
+        self.bind("<Leave>", lambda _e: self._mudar_sobre(False))
+        self.bind("<FocusIn>", lambda _e: self._mudar_foco(True))
+        self.bind("<FocusOut>", lambda _e: self._mudar_foco(False))
+        self.bind("<Return>", self._alternar_popup)
+        self.bind("<space>", self._alternar_popup)
+        self.bind("<Escape>", lambda _e: self._fechar_popup())
+        self.bind("<Down>", lambda _e: self._mover(1))
+        self.bind("<Up>", lambda _e: self._mover(-1))
+
+    def _mudar_sobre(self, ativo):
+        self._sobre = ativo
+        self._desenhar()
+
+    def _mudar_foco(self, ativo):
+        self._foco = ativo
+        self._desenhar()
+
+    def _desenhar(self, _evento=None):
+        largura, altura = self.winfo_width(), self.winfo_height()
+        if largura < 4 or altura < 4:
+            return
+        self.delete("all")
+        cor_borda = self._cores["destaque"] if (self._foco or self._popup) else self._cores["borda"]
+        cor_campo = _clarear_cor(self._cores["campo"], 0.045) if self._sobre else self._cores["campo"]
+        _forma_arredondada(
+            self, 1, 1, largura - 1, altura - 1, _px(10),
+            fill=cor_campo, outline=cor_borda, width=2 if (self._foco or self._popup) else 1
+        )
+        texto = self._valor or "Selecione uma opção"
+        self.create_text(
+            _px(14), altura / 2, text=texto, anchor="w", font=self._fonte,
+            fill=self._cores["texto"] if self._valor else self._cores["suave"]
+        )
+        x = largura - _px(17)
+        y = altura / 2
+        self.create_line(x - _px(4), y - _px(2), x, y + _px(2), fill=self._cores["suave"], width=2)
+        self.create_line(x, y + _px(2), x + _px(4), y - _px(2), fill=self._cores["suave"], width=2)
+
+    def _alternar_popup(self, _evento=None):
+        self.focus_set()
+        if self._popup and self._popup.winfo_exists():
+            self._fechar_popup()
+        else:
+            self._abrir_popup()
+        return "break"
+
+    def _abrir_popup(self):
+        if not self._valores:
+            return
+        topo = tk.Toplevel(self)
+        self._popup = topo
+        topo.withdraw()
+        topo.overrideredirect(True)
+        topo.transient(self.winfo_toplevel())
+        transparente = "#010203"
+        topo.configure(bg=transparente)
+        try:
+            topo.wm_attributes("-transparentcolor", transparente)
+        except tk.TclError:
+            transparente = self._cores["painel"]
+            topo.configure(bg=transparente)
+        largura = max(self.winfo_width(), _px(220))
+        linhas = min(8, len(self._valores))
+        altura_linha = _px(36)
+        margem = _px(6)
+        altura = linhas * altura_linha + margem * 2
+        x = self.winfo_rootx()
+        y = self.winfo_rooty() + self.winfo_height() + _px(4)
+        if y + altura > self.winfo_screenheight() - _px(12):
+            y = self.winfo_rooty() - altura - _px(4)
+        topo.geometry(f"{largura}x{altura}+{x}+{y}")
+
+        caixa = tk.Canvas(
+            topo, width=largura, height=altura, bg=transparente, bd=0,
+            highlightthickness=0, cursor="hand2", takefocus=1
+        )
+        caixa.pack(fill="both", expand=True)
+        atual = self._valores.index(self._valor) if self._valor in self._valores else 0
+        estado = {
+            "ativo": atual,
+            "inicio": max(0, min(atual - linhas // 2, len(self._valores) - linhas)),
+        }
+
+        def manter_visivel():
+            if estado["ativo"] < estado["inicio"]:
+                estado["inicio"] = estado["ativo"]
+            elif estado["ativo"] >= estado["inicio"] + linhas:
+                estado["inicio"] = estado["ativo"] - linhas + 1
+
+        def desenhar_opcoes():
+            caixa.delete("all")
+            _forma_arredondada(
+                caixa, 1, 1, largura - 1, altura - 1, _px(11),
+                fill=self._cores["painel"], outline=self._cores["borda"], width=1
+            )
+            fim = min(len(self._valores), estado["inicio"] + linhas)
+            for posicao, indice in enumerate(range(estado["inicio"], fim)):
+                y1 = margem + posicao * altura_linha
+                y2 = y1 + altura_linha
+                if indice == estado["ativo"]:
+                    _forma_arredondada(
+                        caixa, margem, y1 + _px(2), largura - margem, y2 - _px(2), _px(8),
+                        fill=_clarear_cor(self._cores["campo"], 0.08), outline=""
+                    )
+                    caixa.create_rectangle(
+                        margem, y1 + _px(10), margem + _px(3), y2 - _px(10),
+                        fill=self._cores["destaque"], outline=""
+                    )
+                caixa.create_text(
+                    margem + _px(14), (y1 + y2) / 2, text=self._valores[indice],
+                    anchor="w", font=self._fonte, fill=self._cores["texto"]
+                )
+                if self._valores[indice] == self._valor:
+                    caixa.create_text(
+                        largura - margem - _px(12), (y1 + y2) / 2, text="\u2713",
+                        anchor="e", font=("Segoe UI", 10, "bold"), fill=self._cores["destaque"]
+                    )
+
+        def indice_do_mouse(evento):
+            posicao = int((evento.y - margem) // altura_linha)
+            if 0 <= posicao < linhas:
+                indice = estado["inicio"] + posicao
+                if indice < len(self._valores):
+                    return indice
+            return None
+
+        def escolher(_evento=None):
+            indice = estado["ativo"]
+            if _evento is not None and getattr(_evento, "num", None) == 1:
+                indice_apontado = indice_do_mouse(_evento)
+                if indice_apontado is not None:
+                    indice = indice_apontado
+            if 0 <= indice < len(self._valores):
+                self.set(self._valores[indice])
+                self._fechar_popup()
+                self.event_generate("<<ComboboxSelected>>")
+            return "break"
+
+        def acompanhar_mouse(evento):
+            indice = indice_do_mouse(evento)
+            if indice is not None and indice != estado["ativo"]:
+                estado["ativo"] = indice
+                desenhar_opcoes()
+
+        def mover_popup(passo):
+            estado["ativo"] = max(0, min(len(self._valores) - 1, estado["ativo"] + passo))
+            manter_visivel()
+            desenhar_opcoes()
+            return "break"
+
+        def rolar(evento):
+            passo = -1 if evento.delta > 0 else 1
+            limite = max(0, len(self._valores) - linhas)
+            estado["inicio"] = max(0, min(limite, estado["inicio"] + passo))
+            estado["ativo"] = max(
+                estado["inicio"], min(estado["ativo"], estado["inicio"] + linhas - 1)
+            )
+            desenhar_opcoes()
+            return "break"
+
+        desenhar_opcoes()
+        caixa.bind("<Motion>", acompanhar_mouse)
+        caixa.bind("<ButtonRelease-1>", escolher)
+        caixa.bind("<Return>", escolher)
+        caixa.bind("<Up>", lambda _e: mover_popup(-1))
+        caixa.bind("<Down>", lambda _e: mover_popup(1))
+        caixa.bind("<MouseWheel>", rolar)
+        caixa.bind("<Escape>", lambda _e: self._fechar_popup())
+        topo.bind("<FocusOut>", lambda _e: topo.after(80, self._fechar_se_perdeu_foco))
+        topo.deiconify()
+        topo.lift()
+        caixa.focus_set()
+        self._desenhar()
+
+    def _fechar_se_perdeu_foco(self):
+        if self._popup and self._popup.winfo_exists():
+            foco = self._popup.focus_get()
+            if foco is None:
+                self._fechar_popup()
+
+    def _fechar_popup(self):
+        if self._popup and self._popup.winfo_exists():
+            self._popup.destroy()
+        self._popup = None
+        self._desenhar()
+
+    def _mover(self, passo):
+        if not self._valores:
+            return "break"
+        atual = self._valores.index(self._valor) if self._valor in self._valores else -1
+        self.set(self._valores[(atual + passo) % len(self._valores)])
+        self.event_generate("<<ComboboxSelected>>")
+        return "break"
+
+    def get(self):
+        return self._valor
+
+    def set(self, valor):
+        self._valor = str(valor)
+        self._desenhar()
+
+    def current(self, indice=None):
+        if indice is None:
+            return self._valores.index(self._valor) if self._valor in self._valores else -1
+        if 0 <= indice < len(self._valores):
+            self.set(self._valores[indice])
+
+    def configurar_valores(self, valores):
+        self._valores = list(valores)
+        if self._valor not in self._valores:
+            self.set("")
+
+    def _aplicar_paleta(self, pal):
+        self._cores.update({k: pal[k] for k in self._cores if k in pal})
+        try:
+            self.configure(bg=self.master.cget("bg"))
+        except tk.TclError:
+            pass
+        self._desenhar()
+
+
+class BotaoModerno(tk.Canvas):
+    """Botão primário arredondado com estados de hover e clique."""
+
+    def __init__(self, master, texto, comando, fonte=("Segoe UI", 10, "bold"), altura=46):
+        try:
+            fundo_pai = master.cget("bg")
+        except tk.TclError:
+            fundo_pai = "#121212"
+        super().__init__(master, height=_px(altura), bg=fundo_pai, bd=0, highlightthickness=0, cursor="hand2")
+        self._texto = texto
+        self._comando = comando
+        self._fonte = fonte
+        self._cor = "#2f81f7"
+        self._sobre = False
+        self._pressionado = False
+        self.bind("<Configure>", self._desenhar)
+        self.bind("<Enter>", lambda _e: self._estado(sobre=True))
+        self.bind("<Leave>", lambda _e: self._estado(sobre=False, pressionado=False))
+        self.bind("<ButtonPress-1>", lambda _e: self._estado(pressionado=True))
+        self.bind("<ButtonRelease-1>", self._clicar)
+
+    def _estado(self, sobre=None, pressionado=None):
+        if sobre is not None:
+            self._sobre = sobre
+        if pressionado is not None:
+            self._pressionado = pressionado
+        self._desenhar()
+
+    def _clicar(self, evento):
+        estava_pressionado = self._pressionado
+        self._pressionado = False
+        self._desenhar()
+        if estava_pressionado and 0 <= evento.x <= self.winfo_width() and 0 <= evento.y <= self.winfo_height():
+            self._comando()
+
+    def _desenhar(self, _evento=None):
+        largura, altura = self.winfo_width(), self.winfo_height()
+        if largura < 4 or altura < 4:
+            return
+        self.delete("all")
+        cor = _clarear_cor(self._cor, 0.12 if self._sobre else 0.0)
+        if self._pressionado:
+            cor = self._cor
+        _forma_arredondada(self, 1, 1, largura - 1, altura - 1, _px(10), fill=cor, outline=cor)
+        self.create_text(largura / 2, altura / 2, text=self._texto, font=self._fonte, fill="#ffffff")
+
+    def _aplicar_paleta(self, pal):
+        self._cor = pal.get("azul", self._cor)
+        try:
+            self.configure(bg=self.master.cget("bg"))
+        except tk.TclError:
+            pass
+        self._desenhar()
+
 # Importação condicional do monitoramento da IA
 try:
     from monitor import iniciar_monitoramento_tempo_real
@@ -231,19 +622,52 @@ def abrir_video(url):
     webbrowser.open(url)
 
 # --- LÓGICA DA ABA 1 (DIAGNÓSTICO) ---
+def _mostrar_resultado_diagnostico(titulo: str, detalhe: str, cor: str):
+    """Atualiza o cartão de resultado da tela de diagnóstico."""
+    lbl_resultado_status.config(text=titulo, fg=cor)
+    lbl_resultado.config(text=detalhe, fg="#e0e0e0")
+    if hasattr(frame_resultado_diag, "definir_borda"):
+        frame_resultado_diag.definir_borda(cor)
+    else:
+        frame_resultado_diag.config(highlightbackground=cor)
+
+
 def atualizar_jogo_selecionado(event=None):
     jogo = combo_jogos.get()
     if jogo in JOGOS:
-        caminho_capa = JOGOS[jogo]["capa"]
+        dados = JOGOS[jogo]
+        caminho_capa = dados["capa"]
+        if not os.path.isabs(caminho_capa):
+            caminho_capa = os.path.join(BASE_DIR, caminho_capa)
+
+        lbl_jogo_nome.config(text=jogo)
+        lbl_jogo_requisitos.config(
+            text=(f"Referência cadastrada\n"
+                  f"CPU: {dados['cpu']} pts   GPU: {dados['gpu']} pts\n"
+                  f"Memória: {dados['ram']}")
+        )
+
         if os.path.exists(caminho_capa):
             try:
                 img = tk.PhotoImage(file=caminho_capa)
+                fator = max(1, (img.width() + _px(139)) // _px(140),
+                            (img.height() + _px(159)) // _px(160))
+                if fator > 1:
+                    img = img.subsample(fator, fator)
                 lbl_imagem_jogo.config(image=img, text="")
                 lbl_imagem_jogo.image = img
             except Exception:
-                lbl_imagem_jogo.config(image="", text="🖼️ [Imagem do Jogo]", fg="#888888")
+                lbl_imagem_jogo.config(image="", text="Capa indisponível", fg="#888888")
+                lbl_imagem_jogo.image = None
         else:
-            lbl_imagem_jogo.config(image="", text="🖼️ [Capa não encontrada]", fg="#888888")
+            lbl_imagem_jogo.config(image="", text="Capa não disponível\npara este título", fg="#888888")
+            lbl_imagem_jogo.image = None
+
+        _mostrar_resultado_diagnostico(
+            "Pronto para analisar",
+            "Confira os componentes e inicie a comparação. Nenhuma configuração do PC será alterada.",
+            "#38b6ff",
+        )
 
 def verificar_compatibilidade():
     cpu_escolhida = combo_cpu.get()
@@ -252,7 +676,11 @@ def verificar_compatibilidade():
     jogo_escolhido = combo_jogos.get()
 
     if not all([cpu_escolhida, gpu_escolhida, ram_escolhida, jogo_escolhido]):
-        lbl_resultado.config(text="⚠️ Selecione todos os campos!", fg="#ffc107")
+        _mostrar_resultado_diagnostico(
+            "Complete os campos",
+            "Selecione processador, placa de vídeo, memória e jogo antes de analisar.",
+            "#ff9800",
+        )
         return
 
     pontos_cpu = CPUS[cpu_escolhida]
@@ -264,13 +692,26 @@ def verificar_compatibilidade():
     req_ram_mb = converter_ram_para_mb(JOGOS[jogo_escolhido]["ram"])
 
     if pontos_cpu >= req_cpu and pontos_gpu >= req_gpu and ram_pc_mb >= req_ram_mb:
-        lbl_resultado.config(text=f"🟢 RODA LISO!\nScore Hardware: {pontos_cpu + pontos_gpu}/2000", fg="#28a745")
+        _mostrar_resultado_diagnostico(
+            "Compatível com o perfil",
+            (f"CPU e GPU somam {pontos_cpu + pontos_gpu} pontos e a memória atende aos "
+             f"{JOGOS[jogo_escolhido]['ram']} cadastrados. Esta é uma estimativa, não um benchmark."),
+            "#28a745",
+        )
     elif ram_pc_mb < req_ram_mb:
-        lbl_resultado.config(text=f"🔴 MEMÓRIA INSUFICIENTE\nRequisito: {JOGOS[jogo_escolhido]['ram']}\nVocê tem: {ram_escolhida}", fg="#dc3545")
+        _mostrar_resultado_diagnostico(
+            "Memória abaixo do requisito",
+            f"O perfil pede {JOGOS[jogo_escolhido]['ram']}, mas a seleção atual possui {ram_escolhida}.",
+            "#dc3545",
+        )
     else:
         gargalo = "GPU" if pontos_gpu < req_gpu else "CPU"
         diff = req_gpu - pontos_gpu if gargalo == "GPU" else req_cpu - pontos_cpu
-        lbl_resultado.config(text=f"🟡 GARGALO DETECTADO ({gargalo})\nFaltam {diff} pts de performance.", fg="#ffc107")
+        _mostrar_resultado_diagnostico(
+            f"Limite identificado na {gargalo}",
+            f"A pontuação está {diff} pontos abaixo da referência cadastrada para {jogo_escolhido}.",
+            "#ff9800",
+        )
 
 # --- LÓGICA DA ABA 2 (TUTORIAIS CLEAN) ---
 def selecionar_tutorial(event=None):
@@ -678,48 +1119,142 @@ if __name__ == '__main__':
         cb._fonte_lista = F_COMBO
         return cb
 
-    frame_aba1 = tk.Frame(f1, bg="#000000", padx=15, pady=10)
+    # A primeira tela segue uma composição Fluent: título claro, dois cartões e uma ação principal.
+    D_FONTE = tema.FONTE
+    D_TITULO = (D_FONTE, 20, "bold")
+    D_SUBTITULO = (D_FONTE, 10)
+    D_CARD_TITULO = (D_FONTE, 13, "bold")
+    D_LABEL = (D_FONTE, 10, "bold")
+    D_CORPO = (D_FONTE, 10)
+    D_PEQUENO = (D_FONTE, 9)
+
+    frame_aba1 = tk.Frame(f1, bg="#000000", padx=24, pady=18)
     frame_aba1.pack(fill="both", expand=True)
 
-    col_esq1 = tk.Frame(frame_aba1, bg="#000000")
-    col_esq1.pack(side="left", fill="both", expand=True)
+    cabecalho_diag = tk.Frame(frame_aba1, bg="#000000")
+    cabecalho_diag.pack(fill="x", pady=(0, 16))
+    tk.Label(
+        cabecalho_diag, text="Diagnóstico do PC", font=D_TITULO,
+        fg="#ffffff", bg="#000000", anchor="w"
+    ).pack(anchor="w")
+    tk.Label(
+        cabecalho_diag,
+        text="Compare seu hardware com o perfil cadastrado de cada jogo em poucos segundos.",
+        font=D_SUBTITULO, fg="#aaaaaa", bg="#000000", anchor="w", justify="left"
+    ).pack(anchor="w", pady=(4, 0))
 
-    # Bloco com a largura do controle mais largo: as listas e o botão VERIFICAR esticam até a mesma largura
-    bloco1 = tk.Frame(col_esq1, bg="#000000")
-    bloco1.pack(anchor="w")
+    conteudo_diag = tk.Frame(frame_aba1, bg="#000000")
+    conteudo_diag.pack(fill="both", expand=True)
+    conteudo_diag.grid_columnconfigure(0, weight=5, uniform="diagnostico")
+    conteudo_diag.grid_columnconfigure(1, weight=6, uniform="diagnostico")
+    conteudo_diag.grid_rowconfigure(0, weight=1)
 
-    tk.Label(bloco1, text="CONFIGURAÇÃO DO SEU PC", font=F_TIT, fg="#aaaaaa", bg="#000000").pack(anchor="w", pady=(0, 5))
+    card_pc_shell = PainelArredondado(conteudo_diag, papel="painel", raio=16, padding=22)
+    card_pc_shell.grid(row=0, column=0, sticky="nsew", padx=(0, 8))
+    card_pc = card_pc_shell.conteudo
 
-    tk.Label(bloco1, text="Processador:", font=F_TXT, fg="#ffffff", bg="#000000").pack(anchor="w")
-    combo_cpu = combo_grande(bloco1, values=list(CPUS.keys()), width=32)
-    combo_cpu.pack(fill="x", pady=(0, 8))
+    topo_pc = tk.Frame(card_pc, bg="#121212")
+    topo_pc.pack(fill="x", pady=(0, 18))
+    tk.Label(
+        topo_pc, text="Configuração do computador", font=D_CARD_TITULO,
+        fg="#ffffff", bg="#121212", anchor="w"
+    ).pack(anchor="w")
+    tk.Label(
+        topo_pc, text="Os dados detectados podem ser ajustados manualmente.", font=D_PEQUENO,
+        fg="#aaaaaa", bg="#121212", anchor="w", justify="left"
+    ).pack(anchor="w", pady=(4, 0))
 
-    tk.Label(bloco1, text="Placa de Vídeo:", font=F_TXT, fg="#ffffff", bg="#000000").pack(anchor="w")
-    combo_gpu = combo_grande(bloco1, values=list(GPUS.keys()), width=32)
-    combo_gpu.pack(fill="x", pady=(0, 8))
+    def campo_diagnostico(master, texto, valores):
+        grupo = tk.Frame(master, bg="#121212")
+        grupo.pack(fill="x", pady=(0, 14))
+        tk.Label(
+            grupo, text=texto, font=D_LABEL, fg="#e0e0e0", bg="#121212", anchor="w"
+        ).pack(anchor="w", pady=(0, 6))
+        combo = ComboModerno(grupo, valores=valores, fonte=(D_FONTE, 10))
+        combo.pack(fill="x")
+        return combo
 
-    tk.Label(bloco1, text="Memória RAM:", font=F_TXT, fg="#ffffff", bg="#000000").pack(anchor="w")
-    combo_ram = combo_grande(bloco1, values=RAMS, width=32)
-    combo_ram.pack(fill="x", pady=(0, 15))
+    combo_cpu = campo_diagnostico(card_pc, "Processador", list(CPUS.keys()))
+    combo_gpu = campo_diagnostico(card_pc, "Placa de vídeo", list(GPUS.keys()))
+    combo_ram = campo_diagnostico(card_pc, "Memória RAM", RAMS)
 
-    tk.Label(bloco1, text="JOGO DESEJADO", font=F_TIT, fg="#aaaaaa", bg="#000000").pack(anchor="w", pady=(0, 5))
-    combo_jogos = combo_grande(bloco1, values=list(JOGOS.keys()), width=32)
-    combo_jogos.pack(fill="x", pady=(0, 15))
+    dica_pc_shell = PainelArredondado(
+        card_pc, papel="campo", borda="#222222", raio=10, padding=10, altura=44
+    )
+    dica_pc_shell.pack(fill="x", side="bottom", pady=(4, 0))
+    dica_pc = dica_pc_shell.conteudo
+    tk.Label(
+        dica_pc, text="Detecção local", font=D_PEQUENO, fg="#38b6ff", bg="#1a1a1a"
+    ).pack(side="left")
+    tk.Label(
+        dica_pc, text="  Você mantém o controle dos valores.", font=D_PEQUENO,
+        fg="#aaaaaa", bg="#1a1a1a"
+    ).pack(side="left")
+
+    card_jogo_shell = PainelArredondado(conteudo_diag, papel="painel", raio=16, padding=22)
+    card_jogo_shell.grid(row=0, column=1, sticky="nsew", padx=(8, 0))
+    card_jogo = card_jogo_shell.conteudo
+
+    tk.Label(
+        card_jogo, text="Jogo e compatibilidade", font=D_CARD_TITULO,
+        fg="#ffffff", bg="#121212", anchor="w"
+    ).pack(anchor="w")
+    tk.Label(
+        card_jogo, text="Escolha um título para consultar a referência cadastrada.",
+        font=D_PEQUENO, fg="#aaaaaa", bg="#121212", anchor="w", justify="left"
+    ).pack(anchor="w", pady=(4, 14))
+
+    combo_jogos = ComboModerno(card_jogo, valores=list(JOGOS.keys()), fonte=(D_FONTE, 10))
+    combo_jogos.pack(fill="x", pady=(0, 14))
     combo_jogos.bind("<<ComboboxSelected>>", atualizar_jogo_selecionado)
 
-    btn_exec = tk.Button(bloco1, text="VERIFICAR COMPATIBILIDADE", bg="#28a745", fg="white", font=F_TIT, command=verificar_compatibilidade, relief="flat", padx=15, pady=8, cursor="hand2")
-    btn_exec.pack(fill="x", pady=5)
+    resumo_jogo_shell = PainelArredondado(
+        card_jogo, papel="campo", borda="#222222", raio=12, padding=14, altura=156
+    )
+    resumo_jogo_shell.pack(fill="x", pady=(0, 14))
+    resumo_jogo = resumo_jogo_shell.conteudo
+    lbl_imagem_jogo = tk.Label(
+        resumo_jogo, text="Selecione um jogo", font=D_PEQUENO,
+        bg="#121212", fg="#aaaaaa", width=18, height=8, justify="center"
+    )
+    lbl_imagem_jogo.pack(side="left", fill="y")
 
-    # O resultado fica FORA do bloco: textos longos dele não podem alargar as listas e o botão
-    lbl_resultado = tk.Label(col_esq1, text="", font=F_RES, bg="#000000", justify="left")
-    lbl_resultado.pack(anchor="w", pady=10)
+    dados_jogo_diag = tk.Frame(resumo_jogo, bg="#1a1a1a")
+    dados_jogo_diag.pack(side="left", fill="both", expand=True, padx=(16, 0))
+    lbl_jogo_nome = tk.Label(
+        dados_jogo_diag, text="Nenhum jogo selecionado", font=(D_FONTE, 12, "bold"),
+        fg="#ffffff", bg="#1a1a1a", anchor="w", justify="left", wraplength=_px(250)
+    )
+    lbl_jogo_nome.pack(anchor="w")
+    lbl_jogo_requisitos = tk.Label(
+        dados_jogo_diag, text="A referência aparecerá aqui.", font=D_PEQUENO,
+        fg="#aaaaaa", bg="#1a1a1a", anchor="w", justify="left"
+    )
+    lbl_jogo_requisitos.pack(anchor="w", pady=(8, 0))
 
-    col_dir1 = tk.Frame(frame_aba1, bg="#121212", highlightbackground="#222222", highlightthickness=1, padx=15, pady=15)
-    col_dir1.pack(side="right", fill="both", expand=True, padx=(15, 0))
+    btn_exec = BotaoModerno(
+        card_jogo, texto="Analisar compatibilidade", comando=verificar_compatibilidade,
+        fonte=(D_FONTE, 10, "bold"), altura=46
+    )
+    btn_exec.pack(fill="x", pady=(0, 14))
 
-    tk.Label(col_dir1, text="VISUALIZAÇÃO DO TÍTULO", font=F_TIT, fg="#aaaaaa", bg="#121212").pack(pady=(0, 10))
-    lbl_imagem_jogo = tk.Label(col_dir1, text="Selecione um jogo ao lado", font=F_ITA, bg="#1a1a1a", fg="#aaaaaa", width=18, height=12)
-    lbl_imagem_jogo.pack(expand=True, fill="both")
+    frame_resultado_diag = PainelArredondado(
+        card_jogo, papel="campo", borda="#38b6ff", raio=12, padding=14
+    )
+    frame_resultado_diag.pack(fill="both", expand=True)
+    frame_resultado_conteudo = frame_resultado_diag.conteudo
+    lbl_resultado_status = tk.Label(
+        frame_resultado_conteudo, text="Pronto para analisar", font=D_LABEL,
+        fg="#38b6ff", bg="#1a1a1a", anchor="w", justify="left"
+    )
+    lbl_resultado_status.pack(anchor="w")
+    lbl_resultado = tk.Label(
+        frame_resultado_conteudo,
+        text="Confira os componentes e inicie a comparação. Nenhuma configuração do PC será alterada.",
+        font=D_PEQUENO, fg="#e0e0e0", bg="#1a1a1a", anchor="w", justify="left",
+        wraplength=_px(390)
+    )
+    lbl_resultado.pack(anchor="w", pady=(5, 0), fill="x")
 
     # ==========================================
     # --- ABA 2: TUTORIAIS ---

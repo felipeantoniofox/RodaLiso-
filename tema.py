@@ -243,6 +243,12 @@ def _aplicar_widget(w, pal):
             w.configure(highlightthickness=0)
         except tk.TclError:
             pass
+    aplicar_paleta = getattr(w, "_aplicar_paleta", None)
+    if callable(aplicar_paleta):
+        try:
+            aplicar_paleta(pal)
+        except tk.TclError:
+            pass
     _trocar_fonte(w)
 
 
@@ -265,9 +271,9 @@ def aplicar(raiz, nome=None):
     botao = _estado.get("botao")
     if botao is not None:
         if nome == "noturno":
-            botao.definir("\u2600", "Modo claro")
+            botao.definir("\u2600", "Usar tema claro")
         else:
-            botao.definir("\U0001F319", "Modo noturno")
+            botao.definir("\u263e", "Usar tema noturno")
     for cv, item in _estado["pontos"]:
         try:
             cv.itemconfigure(item, fill=pal["destaque"])
@@ -318,25 +324,134 @@ def _rotulo_icone(master, icone, tam, bg, fg, extra_y=0):
     return lbl
 
 
-class BotaoIcone(tk.Frame):
-    """Botão com ícone + texto alinhados ao centro (ícone e texto são rótulos separados)."""
+class BotaoIcone(tk.Canvas):
+    """Botão compacto de tema: apenas o ícone fica visível e o texto aparece como dica."""
 
-    def __init__(self, master, comando, bg="#1a1a1a", fg="#ffffff", tam=9, padx=14, pady=6):
-        super().__init__(master, bg=bg, cursor="hand2")
+    def __init__(self, master, comando, bg="#121212", fg="#ffffff", tam=13, tamanho=36):
+        super().__init__(
+            master, width=tamanho, height=tamanho, bg=bg, bd=0,
+            highlightthickness=0, cursor="hand2", takefocus=1
+        )
         self._comando = comando
-        miolo = tk.Frame(self, bg=bg, cursor="hand2")
-        miolo.pack(padx=padx, pady=pady)
-        self._icone = _rotulo_icone(miolo, "", tam + 1, bg, fg, ICONE_DESLOC_Y)
-        self._texto = tk.Label(miolo, text="", font=(FONTE, tam, "bold"), bg=bg, fg=fg, bd=0, padx=0, pady=0,
-                               highlightthickness=0, cursor="hand2")
-        self._texto.pack(side="left", padx=(8, 0))
-        for w in (self, miolo, self._icone, self._texto):
-            w.bind("<Button-1>", lambda e: self._comando())
-            w.configure(cursor="hand2")
+        self._icone = ""
+        self._dica = ""
+        self._tam = tam
+        self._sobre = False
+        self._foco = False
+        self._pressionado = False
+        self._agendamento_dica = None
+        self._janela_dica = None
+        self._cores = {
+            "painel": bg, "campo": "#1a1a1a", "borda": "#222222",
+            "texto": fg, "suave": "#aaaaaa", "destaque": "#38b6ff",
+        }
+        self.bind("<Configure>", self._desenhar)
+        self.bind("<Enter>", self._entrar)
+        self.bind("<Leave>", self._sair)
+        self.bind("<FocusIn>", lambda _e: self._mudar_foco(True))
+        self.bind("<FocusOut>", lambda _e: self._mudar_foco(False))
+        self.bind("<ButtonPress-1>", self._pressionar)
+        self.bind("<ButtonRelease-1>", self._soltar)
+        self.bind("<Return>", lambda _e: self._acionar())
+        self.bind("<space>", lambda _e: self._acionar())
+
+    def _desenhar(self, _evento=None):
+        largura, altura = self.winfo_width(), self.winfo_height()
+        if largura < 4 or altura < 4:
+            return
+        self.delete("all")
+        preenchimento = self._cores["painel"]
+        contorno = self._cores["painel"]
+        if self._sobre or self._foco:
+            preenchimento = self._cores["campo"]
+            contorno = self._cores["borda"]
+        if self._pressionado:
+            preenchimento = self._cores["borda"]
+        margem = 2
+        self.create_oval(
+            margem, margem, largura - margem, altura - margem,
+            fill=preenchimento, outline=contorno, width=1
+        )
+        self.create_text(
+            largura / 2, altura / 2, text=self._icone,
+            font=("Segoe UI Symbol", self._tam), fill=self._cores["texto"]
+        )
+
+    def _entrar(self, _evento=None):
+        self._sobre = True
+        self._desenhar()
+        self._cancelar_dica()
+        self._agendamento_dica = self.after(550, self._mostrar_dica)
+
+    def _sair(self, _evento=None):
+        self._sobre = False
+        self._pressionado = False
+        self._cancelar_dica()
+        self._desenhar()
+
+    def _mudar_foco(self, ativo):
+        self._foco = ativo
+        self._desenhar()
+
+    def _pressionar(self, _evento=None):
+        self.focus_set()
+        self._pressionado = True
+        self._cancelar_dica()
+        self._desenhar()
+
+    def _soltar(self, evento):
+        estava_pressionado = self._pressionado
+        self._pressionado = False
+        self._desenhar()
+        if estava_pressionado and 0 <= evento.x <= self.winfo_width() and 0 <= evento.y <= self.winfo_height():
+            self._acionar()
+
+    def _acionar(self):
+        self._cancelar_dica()
+        self._comando()
+        return "break"
+
+    def _mostrar_dica(self):
+        self._agendamento_dica = None
+        if not self._sobre or not self._dica or self._janela_dica is not None:
+            return
+        topo = tk.Toplevel(self)
+        self._janela_dica = topo
+        topo.overrideredirect(True)
+        topo.transient(self.winfo_toplevel())
+        topo.configure(bg=self._cores["borda"])
+        tk.Label(
+            topo, text=self._dica, font=(FONTE, 9), bg=self._cores["campo"],
+            fg=self._cores["texto"], padx=9, pady=5, bd=0
+        ).pack(padx=1, pady=1)
+        topo.update_idletasks()
+        x = self.winfo_rootx() + self.winfo_width() - topo.winfo_reqwidth()
+        y = self.winfo_rooty() + self.winfo_height() + 6
+        topo.geometry(f"+{x}+{y}")
+        topo.lift()
+
+    def _cancelar_dica(self):
+        if self._agendamento_dica is not None:
+            self.after_cancel(self._agendamento_dica)
+            self._agendamento_dica = None
+        if self._janela_dica is not None:
+            try:
+                self._janela_dica.destroy()
+            except tk.TclError:
+                pass
+            self._janela_dica = None
 
     def definir(self, icone, texto):
-        self._icone.configure(text=_icone_limpo(icone))
-        self._texto.configure(text=texto)
+        self._icone = _icone_limpo(icone)
+        self._dica = texto
+        self._desenhar()
+
+    def _aplicar_paleta(self, pal):
+        self._cores.update({k: pal[k] for k in self._cores if k in pal})
+        self.configure(bg=pal["painel"])
+        if self._janela_dica is not None:
+            self._cancelar_dica()
+        self._desenhar()
 
 
 def barra_de_abas(raiz, nb, icones):
@@ -501,7 +616,7 @@ def instalar(raiz, antes_de=None, titulo="RODA LISO", subtitulo="Performance Hub
     tk.Label(cab, text=subtitulo, font=(FONTE, 9), fg="#aaaaaa", bg="#121212", bd=0, pady=0).pack(side="left", padx=(10, 0), pady=(3, 0))
 
     botao = BotaoIcone(cab, comando=lambda: alternar(raiz))
-    botao.pack(side="right", padx=12, pady=8)
+    botao.pack(side="right", padx=12, pady=5)
     _estado["botao"] = botao
 
     aplicar(raiz)
